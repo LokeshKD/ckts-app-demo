@@ -28,3 +28,35 @@
   height: 35px;
   width: 100%;
 }
+
+@media (max-width: 575.98px) {
+
+  .bg-custom {
+    background-color: #f2f6e9;
+  }
+  
+  .description {
+    left: 0;
+    padding: 0 15px;
+    position: absolute;
+    top: 10%;
+    transform: none;
+    text-align: center;
+  }
+
+  .description h3 {
+    font-size: 2em;
+  }
+
+  .description h2 {
+    color: blue;
+  }
+
+  .description p {
+    font-size: 1.2rem;
+  }
+
+  .features {
+    margin: 0;
+  }
+}
