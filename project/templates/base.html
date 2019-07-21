@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>CK Trading Labs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/static/main.css">
+    <link href="{{ url_for('static', filename='bootstrap.min.css') }}" rel="stylesheet">
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> -->
+  </head>
+
+  <body style="background-color: bg-custom">
+
+    <nav class="navbar navbar-expand-md navbar-light bg-dark sticky-top">
+      <a class="navbar-brand" href="/" style="color:#f0f0f0">
+        <img class="nav-logo d-inline-block align-top" src="/static/BuySellBlack.jpeg" alt="" height="40" width="60">
+        CK Trading Labs
+      </a>
+      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <!-- left -->
+        <ul class="navbar-nav flex-row ml-md-auto mr-auto d-md-flex">
+          <li class="nav-item">
+            <a class="nav-link" style="color:#f0f0f0" href="/"> Home </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link"  style="color:#f0f0f0" href="/About"> About </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link"  style="color:#f0f0f0" href="/Contact"> Contact </a>
+          </li>
+        </ul>
+      </div>
+        <!-- right -->
+      <ul class="navbar-nav flex-row ml-md-auto d-none d-md-flex">
+        <li class="nav-item nav-right-btn">
+          <a class="btn btn-outline-success" href="/login">Login</a>
+          <a class="btn btn-outline-primary" href="/register">Register</a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="container">
+      <!-- child template -->
+      {% block content %}{% endblock %}
+
+      <!-- errors -->
+      {% if error %}
+        <p class="error"><strong>Error:</strong> {{ error }}</p>
+      {% endif %}
+
+      <!-- messages -->
+      {% for message in get_flashed_messages() %}
+        {{ message }}
+      {% endfor %}
+    </div>
+
+    <footer class="footer text-center navbar-light bg-custom">
+      <div class="footer">
+        <small>
+          <p>
+            <span>© Copyright 2019 CK Trading Labs</span>.
+            <br>
+            <span>Powered by </span>
+            <a>Kumar Donda</a>.
+          </p>
+        </small>
+      </div>
+    </footer>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em" crossorigin="anonymous"></script>
+  </body>
+</html>

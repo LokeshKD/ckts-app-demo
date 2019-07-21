@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="description">
+<p><h3>Members, Login!</h3>
+<br>
+<!-- <div class="col-md-4"> -->
+  <form class="form-signin" role="form" method="post" action="">
+    {{ form.csrf_token }}
+    <!-- <div class="col-md-2"> -->
+      <p>
+      {{ form.email(placeholder="Email Address") }}
+      <span class="error">
+        {% if form.email.errors %}
+          {% for error in form.email.errors %}
+            <br><small>{{ error }}</small>
+          {% endfor %}
+        {% endif %}
+      </span>
+      </p>
+      <p>
+      {{ form.password(placeholder="Password") }}
+        <span class="error">
+          {% if form.password.errors %}
+            {% for error in form.password.errors %}
+              <br><small>{{ error }}</small>
+            {% endfor %}
+          {% endif %}
+        </span>
+      </p>
+      <br>
+      <button class="btn btn-outline-success" type="submit">Sign in</button>
+    </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,30 @@
+
+.bg-custom {
+  background-color: #f2f6e9;
+}
+.description {
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -55%);
+  text-align: center;
+}
+.description h3 {
+  color: #6ab446;
+}
+.description h2 {
+  color: blue;
+}
+.description p {
+  color: #6a0400;
+  font-size: 1.2rem;
+  line-height: 1.25;
+}
+
+.footer {
+  position: fixed;
+  left: 0px;
+  bottom: 0px;
+  height: 35px;
+  width: 100%;
+}
