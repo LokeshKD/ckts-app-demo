@@ -9,6 +9,9 @@
   transform: translate(-50%, -55%);
   text-align: center;
 }
+.description h4 {
+  color: red;
+}
 .description h3 {
   color: #6ab446;
 }
@@ -34,7 +37,7 @@
   .bg-custom {
     background-color: #f2f6e9;
   }
-  
+
   .description {
     left: 0;
     padding: 0 15px;
