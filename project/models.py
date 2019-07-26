@@ -8,10 +8,10 @@ from datetime import date, datetime
 # Buy and Sell Records
 class BuySheet(db.Model):
 
-    __tablename__ = "buySheet"
+    __tablename__ = 'buy_sheet'
 
     id = db.Column(db.Integer, primary_key=True)
-    entry_date = db.Column(db.Date, nullable=False, default=date.today)
+    entry_date = db.Column(db.Date, nullable=False)
     ro_num = db.Column(db.Integer, nullable=False, default=0)
     order_start_date = db.Column(db.Date, nullable=False)
     agreement = db.Column(db.String, nullable=False)
@@ -19,7 +19,7 @@ class BuySheet(db.Model):
     lot_qty = db.Column(db.Integer, nullable=False)
     entry_rate = db.Column(db.Float, nullable=False)
     entry_trade = db.Column(db.String, nullable=False)
-    days_waiting = db.Column(db.Integer)
+    days_waiting = db.Column(db.Integer, default=0)
     exit_date = db.Column(db.Date)
     exit_rate = db.Column(db.Float)
     exit_trade = db.Column(db.String)
@@ -28,14 +28,35 @@ class BuySheet(db.Model):
     depth = db.Column(db.Float)
 
     client_id = db.Column(db.Integer, ForeignKey('users.id'))
+
+    def __init__(self, entry_date, ro_num, order_start_date, agreement,
+                lot_size, lot_qty, entry_rate, entry_trade, days_waiting,
+                exit_date=None, exit_rate=None, exit_trade=None, rate_diff=None,
+                profit=None, depth=None, client_id=None):
+        self.entry_date = entry_date
+        self.ro_num = ro_num
+        self.order_start_date = order_start_date
+        self.agreement = agreement
+        self.lot_size = lot_size
+        self.lot_qty = lot_qty
+        self.entry_rate = entry_rate
+        self.entry_trade = entry_trade
+        self.days_waiting = days_waiting
+        self.exit_date = exit_date
+        self.exit_rate = exit_rate
+        self.exit_trade = exit_trade
+        self.rate_diff = rate_diff
+        self.profit = profit
+        self.depth = depth
+        self.client_id = client_id
 
 # Sell and Buy Records
 class SellSheet(db.Model):
 
-    __tablename__ = "sellSheet"
+    __tablename__ = 'sell_sheet'
 
     id = db.Column(db.Integer, primary_key=True)
-    entry_date = db.Column(db.Date, nullable=False, default=date.today)
+    entry_date = db.Column(db.Date, nullable=False)
     ro_num = db.Column(db.Integer, nullable=False, default=0)
     order_start_date = db.Column(db.Date, nullable=False)
     agreement = db.Column(db.String, nullable=False)
@@ -43,7 +64,7 @@ class SellSheet(db.Model):
     lot_qty = db.Column(db.Integer, nullable=False)
     entry_rate = db.Column(db.Float, nullable=False)
     entry_trade = db.Column(db.String, nullable=False)
-    days_waiting = db.Column(db.Integer)
+    days_waiting = db.Column(db.Integer, default=0)
     exit_date = db.Column(db.Date)
     exit_rate = db.Column(db.Float)
     exit_trade = db.Column(db.String)
@@ -53,13 +74,34 @@ class SellSheet(db.Model):
 
     client_id = db.Column(db.Integer, ForeignKey('users.id'))
 
+    def __init__(self, entry_date, ro_num, order_start_date, agreement,
+                lot_size, lot_qty, entry_rate, entry_trade, days_waiting,
+                exit_date=None, exit_rate=None, exit_trade=None, rate_diff=None,
+                profit=None, depth=None, client_id=None):
+        self.entry_date = entry_date
+        self.ro_num = ro_num
+        self.order_start_date = order_start_date
+        self.agreement = agreement
+        self.lot_size = lot_size
+        self.lot_qty = lot_qty
+        self.entry_rate = entry_rate
+        self.entry_trade = entry_trade
+        self.days_waiting = days_waiting
+        self.exit_date = exit_date
+        self.exit_rate = exit_rate
+        self.exit_trade = exit_trade
+        self.rate_diff = rate_diff
+        self.profit = profit
+        self.depth = depth
+        self.client_id = client_id
+
 # Day Book
 class DaySheet(db.Model):
 
-    __tablename__ = "daySheet"
+    __tablename__ = 'day_sheet'
 
     id = db.Column(db.Integer, primary_key=True)
-    entry_date = db.Column(db.Date, nullable=False, default=date.today)
+    entry_date = db.Column(db.Date, nullable=False)
     agreement = db.Column(db.String, nullable=False)
     lot_size = db.Column(db.Integer, nullable=False)
     lot_qty = db.Column(db.Integer, nullable=False)
@@ -69,13 +111,24 @@ class DaySheet(db.Model):
 
     client_id = db.Column(db.Integer, ForeignKey('users.id'))
 
+    def __init__(self, entry_date, agreeement, lot_size, lot_qty, trade_rate,
+                profit=0, total_profit=0):
+        self.entry_date = entry_date
+        self.agreement = agreement
+        self.lot_size = lot_size
+        self.lot_qty = lot_qty
+        self.trade_rate = trade_rate
+        self.profit = profit
+        self.total_profit = total_profit
+
+
 # Balance Records
 class BalSheet(db.Model):
 
-    __tablename__ = "balSheet"
+    __tablename__ = 'bal_sheet'
 
     id = db.Column(db.Integer, primary_key=True)
-    entry_date = db.Column(db.Date, nullable=False, default=date.today)
+    entry_date = db.Column(db.Date, nullable=False)
     bank_name = db.Column(db.String, nullable=False)
     credit = db.Column(db.Float, nullable=False)
     tot_credit = db.Column(db.Float, nullable=False)
@@ -92,13 +145,32 @@ class BalSheet(db.Model):
 
     client_id = db.Column(db.Integer, ForeignKey('users.id'))
 
+    def __init__(self, entry_date, bank_name, credit, tot_credit, debit,
+                tot_debit, net_credit, book_profit, open_buys, open_sells,
+                volume, run_loss, net_profit, net_amount):
+        self.entry_date = entry_date
+        self.bank_name = bank_name
+        self.credit = credit
+        self.tot_credit = tot_credit
+        self.debit = debit
+        self.tot_debit = tot_debit
+        self.net_credit = net_credit
+        self.book_profit = book_profit
+        self.open_buys = open_buys
+        self.open_sells = open_sells
+        self.volume = volume
+        self.run_loss = run_loss
+        self.net_profit = net_profit
+        self.net_amount = net_amount
+
+
 # Life Records
 class LifeSheet(db.Model):
 
-    __tablename__ = "lifeSheet"
+    __tablename__ = 'life_sheet'
 
     id = db.Column(db.Integer, primary_key=True)
-    entry_date = db.Column(db.Date, nullable=False, default=date.today)
+    entry_date = db.Column(db.Date, nullable=False)
     max_open_pos = db.Column(db.Integer, nullable=False)
     net_amount = db.Column(db.Float, nullable=False)
     margin_used = db.Column(db.Float, nullable=False)
@@ -106,10 +178,17 @@ class LifeSheet(db.Model):
 
     client_id = db.Column(db.Integer, ForeignKey('users.id'))
 
+    def __init__(self, entry_date, max_open_pos, net_amount, margin_used, life):
+        self.entry_date = entry_date
+        self.max_open_pos = max_open_pos
+        self.net_amount = net_amount
+        self.margin_used = margin_used
+        sel.life = life
+
 # User Records
 class User(db.Model):
 
-    __tablename__ = "users"
+    __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
@@ -117,21 +196,22 @@ class User(db.Model):
     password = db.Column(db.String, nullable=False)
     birth_date = db.Column(db.DateTime, nullable=False)
     mobile = db.Column(db.String, nullable=False)
-    regDate = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    role = db.Column(db.String, nullable=False, default="Client")
-    broker = db.Column(db.String, nullable=False, default="ABML")
-    station = db.Column(db.String, nullable=False, default="HYD-10")
-    dormant = db.Column(db.Boolean, nullable=False, default=False)
+    regDate = db.Column(db.DateTime, nullable=False)
+    role = db.Column(db.String, nullable=False)
+    broker = db.Column(db.String, nullable=False)
+    station = db.Column(db.String, nullable=False)
+    dormant = db.Column(db.Boolean, nullable=False)
 
-    buy_sheet = relationship("BuySheet", backref="buy")
-    sell_sheet = relationship("SellSheet", backref="sell")
-    day_sheet = relationship("DaySheet", backref="day")
-    bal_sheet = relationship("BalSheet", backref="bal")
-    life_sheet = relationship("LifeSheet", backref="life")
+    buy_sheet = relationship("BuySheet", backref="buy_sheet")
+    sell_sheet = relationship("SellSheet", backref="sell_sheet")
+    day_sheet = relationship("DaySheet", backref="day_sheet")
+    bal_sheet = relationship("BalSheet", backref="bal_sheet")
+    life_sheet = relationship("LifeSheet", backref="life_sheet")
     #ro_sheet = relationship("ROSheet", backref="ro")
 
-    def __init__(self, name, email, password, birth_date, regDate=datetime.utcnow,
-            mobile="000", role="Client", broker="ABML", station="HYD-10", dormant=False):
+    def __init__(self, name, email, password, birth_date, mobile="000",
+            regDate=datetime.now(), role="Client", broker="ABML",
+            station="HYD-10", dormant=False):
         self.name = name
         self.email = email
         self.password = bcrypt.generate_password_hash(password).decode('utf-8')

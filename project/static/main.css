@@ -1,7 +1,9 @@
+/* Custom styling */
 
 .bg-custom {
   background-color: #f2f6e9;
 }
+
 .description {
   left: 50%;
   position: absolute;
@@ -25,12 +27,49 @@
 }
 
 .footer {
+  position: flex;
+  left: 0px;
+  bottom: 0px;
+  height: 50px;
+  width: 100%;
+}
+
+.footer-ext {
   position: fixed;
   left: 0px;
   bottom: 0px;
-  height: 35px;
+  height: 50px;
   width: 100%;
 }
+
+/* Table styling */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+table, th, td {
+  border: 1px solid black;
+  font-size: 0.9rem;
+  padding: 1px;
+  text-align: center;
+}
+th, td {
+  height: 25px;
+  vertical-align: center;
+}
+th {
+  background-color: powderblue;
+  color: blue;
+}
+
+tr:nth-child(even) {background-color: #f2f2f2;}
+
+dl {
+  column-count: 3;
+  height: 300px;
+}
+
+
 
 @media (max-width: 575.98px) {
 

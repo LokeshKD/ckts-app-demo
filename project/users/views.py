@@ -2,7 +2,7 @@
 from flask import flash, redirect, url_for, request, render_template, \
     Blueprint
 #from functools import wraps
-from flask_login import login_user, login_required, logout_user
+from flask_login import login_user, login_required, logout_user, current_user
 from project.users.form import LoginForm, RegisterForm
 from project import db
 from project.models import User, bcrypt
@@ -30,37 +30,52 @@ def login_required(f):
     return wrap
 '''
 
+# User Login
 @users_blueprint.route('/login', methods=['GET', 'POST'])
 def login():
+
     error = None
     form = LoginForm(request.form)
+
     if request.method == 'POST':
         if form.validate_on_submit():
-            user = User.query.filter_by(name=request.form['username']).first()
+            user = User.query.filter_by(email=request.form['email']).first()
 
             if user is not None and bcrypt.check_password_hash(
                         user.password, request.form['password']):
-                #session['logged_in'] = True
                 login_user(user)
-                flash('You were just logged in')
-                return redirect(url_for('home.home'))
+                flash(user.name + ' just logged in')
+                return redirect(url_for('home.summary'))
             else:
-                error = 'Invalid Credentials. Please Try again'
+                error = 'Invalid Credentials.'
     return render_template('login.html', form=form, error=error)
 
 
+# User Logout
 @users_blueprint.route('/logout')
 @login_required
 def logout():
-    #session.pop('logged_in', None)
+    flash(current_user.name + ' just logged out')
     logout_user()
-    flash('You were just logged out')
     return redirect(url_for('home.welcome'))
 
+
+# User Registrtion
 @users_blueprint.route('/register', methods=['GET', 'POST']) # pragma: no cover
 def register():
+
+    error = None
     form = RegisterForm()
+
     if form.validate_on_submit():
+        # See if user already exists
+        user = User.query.filter_by(email=form.email.data).first()
+        # If so error out
+        if user is not None:
+            error = "User with email: " + form.email.data + " already exists"
+            return render_template('register.html', form=form, error=error)
+
+        #Everything checks out good. Add the user to DB.
         user = User(
             name=form.username.data,
             email=form.email.data,
@@ -68,8 +83,9 @@ def register():
             birth_date=form.birth_date.data,
             mobile=form.mobile.data
         )
+
         db.session.add(user)
         db.session.commit()
         login_user(user)
-        return redirect(url_for('home.home'))
-    return render_template('register.html', form=form)
+        return redirect(url_for('home.summary'))
+    return render_template('register.html', form=form, error=error)

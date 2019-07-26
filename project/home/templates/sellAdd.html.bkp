@@ -1,0 +1,99 @@
+{% extends "basein.html" %}
+
+{% block content %}
+
+<h4 style="color:powderblue; text-align:center"> New Sell Entry </h4>
+<br>
+<form class="form-group" role="form" method="post" action="">
+
+  {{ form.csrf_token }}
+  <p>
+    {{form.entry_date.label}} : {{ form.entry_date(placeholder="dd/mm/yyy") }}
+    <span class="error">
+      {% if form.entry_date.errors %}
+        {% for error in form.entry_date.errors %}
+          {{ error }}
+        {% endfor %}
+      {% endif %}
+    </span>
+  </p>
+
+  <p>
+    {{form.ro_num.label}} : {{ form.ro_num(placeholder=0) }}
+    <span class="error">
+      {% if form.ro_num.errors %}
+        {% for error in form.ro_num.errors %}
+          {{ error }}
+        {% endfor %}
+      {% endif %}
+    </span>
+  </p>
+
+  <p>
+    {{form.order_start_date.label}} : {{ form.order_start_date(placeholder="dd/mm/yyyy") }}
+    <span class="error">
+      {% if form.order_start_date.errors %}
+        {% for error in form.order_start_date.errors %}
+          {{ error }}
+        {% endfor %}
+      {% endif %}
+    </span>
+  </p>
+
+  <p>
+    {{form.agreement.label}} : {{ form.agreement(placeholder="Nifty Aug 19") }}
+    <span class="error">
+      {% if form.agreement.errors %}
+        {% for error in form.agreement.errors %}
+          {{ error }}
+        {% endfor %}
+      {% endif %}
+    </span>
+  </p>
+
+  <p>
+    {{form.lot_size.label}}   : {{ form.lot_size(placeholder="75") }}
+    <span class="error">
+      {% if form.lot_size.errors %}
+        {% for error in form.lot_size.errors %}
+          {{ error }}
+        {% endfor %}
+      {% endif %}
+    </span>
+  </p>
+  <p>
+    {{form.lot_qty.label}}   : {{ form.lot_qty(placeholder="1") }}
+    <span class="error">
+      {% if form.lot_qty.errors %}
+        {% for error in form.lot_qty.errors %}
+          {{ error }}
+        {% endfor %}
+      {% endif %}
+    </span>
+  </p>
+  <p>
+    {{form.entry_rate.label}}  : {{ form.entry_rate() }}
+    <span class="error">
+      {% if form.entry_rate.errors %}
+        {% for error in form.entry_rate.errors %}
+          {{ error }}
+        {% endfor %}
+      {% endif %}
+    </span>
+  </p>
+  <p>
+    {{form.entry_trade.label}}  : {{ form.entry_trade(placeholder="sell") }}
+    <span class="error">
+      {% if form.entry_trade.errors %}
+        {% for error in form.entry_trade.errors %}
+          {{ error }}
+        {% endfor %}
+      {% endif %}
+    </span>
+  </p>
+  <br><button class="btn btn-sm btn-primary" type="submit">Submit</button>
+
+</form>
+
+
+{% endblock %}

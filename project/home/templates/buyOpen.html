@@ -1,0 +1,92 @@
+{% extends "basein.html" %}
+
+{% block content %}
+
+  <div class="container">
+
+    <nav class="navbar navbar-expand-md navbar-light bg-light" style="height:40px">
+      <div class="container-fluid">
+          <a class="nav-link" href="#" style="color:powderblue">
+            <i class="fas fa-paper-plane"></i>
+            Buy Open Positions
+          </a>
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="nav navbar-nav ml-auto">
+                  <li class="nav-item">
+                      <a class="nav-link" href="/buy/add" style="color:blue">
+                        <i class="fas fa-plus-circle"></i>
+                        New Entry
+                      </a>
+                  </li>
+              </ul>
+          </div> <!-- collapse navbar-collapse -->
+      </div> <!-- container-fluid -->
+    </nav>
+
+    <!-- Contents of Buy Table -->
+    <div style="overflow-x:auto;">
+      <table>
+        <col width="80">
+        <col width="30">
+        <col width="80">
+        <col width="100">
+        <col width="30">
+        <col width="30">
+        <col width="80">
+        <col width="30">
+        <col width="30">
+        <col width="80">
+        <col width="80">
+        <col width="30">
+        <col width="30">
+        <col width="50">
+        <col width="30">
+        <col width="50">
+
+        <tr> <!-- Header -->
+          <th>Entry Date</th>
+          <th>RO Num</th>
+          <th>Start Date</th>
+          <th>Agreement</th>
+          <th>Lot Size</th>
+          <th>Lot Qty</th>
+          <th>Entry Rate </th>
+          <th>Entry Trade</th>
+          <th>Wait Days</th>
+          <th>Exit Date</th>
+          <th>Exit Rate</th>
+          <th>Exit Trade</th>
+          <th>Points</th>
+          <th>Profit Amount</th>
+          <th>Depth</th>
+          <th>Action</th>
+        </tr>
+
+        <!-- Table Data from backend -->
+        {% for record in buy_records %}
+        <tr>
+          <td>  {{ record.entry_date }} </td>
+          <td>  {{ record.ro_num }} </td>
+          <td>  {{ record.order_start_date }} </td>
+          <td>  {{ record.agreement }} </td>
+          <td>  {{ record.lot_size }} </td>
+          <td>  {{ record.lot_qty }} </td>
+          <td>  {{ record.entry_rate }} </td>
+          <td>  {{ record.entry_trade }} </td>
+          <td>  {% if record.days_waiting %} {{ record.days_waiting }} {% endif %} </td>
+          <td>  {% if record.exit_date %} {{ record.exit_date }} {% endif %} </td>
+          <td>  {% if record.exit_rate %} {{ record.exit_rate }} {% endif %} </td>
+          <td>  {% if record.exit_trade %} {{ record.exit_trade }} {% endif %} </td>
+          <td>  {% if record.rate_diff %} {{ record.rate_diff }} {% endif %} </td>
+          <td>  {% if record.profit %} {{ record.profit }} {% endif %} </td>
+          <td>  {% if record.depth %} {{ record.depth }} {% endif %} </td>
+          <td>  <a href="/buy/edit/{{ record.id }}"> Edit </a> </td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div> <!-- Table div -->
+
+  </div> <!-- container -->
+
+{% endblock %}

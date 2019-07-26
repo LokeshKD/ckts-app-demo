@@ -4,23 +4,19 @@ from wtforms import TextField, DateField, DecimalField, IntegerField
 from wtforms.validators import DataRequired
 
 ### Forms ###
-class MessageForm(FlaskForm):
-    title = TextField('Title', validators=[DataRequired()])
-    description = TextField('Description', validators=[DataRequired()])
 
 # Form Representing Buy Sheet
 class BuyForm(FlaskForm):
     entry_date = DateField('Entry Date', format='%d/%m/%Y',
-        validators=[DataRequired()],
+        validators=[DataRequired("Date in dd/mm/yy format")],
     )
-    ro_num = IntegerField('Roll Over Number',
-        validators=[DataRequired()]
-    )
+    ro_num = IntegerField('Roll Over Number')
+
     order_start_date = DateField('Order Start Date', format='%d/%m/%Y',
-        validators=[DataRequired()],
+        validators=[DataRequired("Date in dd/mm/yy format")],
     )
     agreement = TextField('Agreement',
-        validators=[DataRequired()]
+        validators=[DataRequired("Example: Nifty Jul 19")]
     )
     lot_size = IntegerField('Lot Size',
         validators=[DataRequired()]
@@ -39,17 +35,16 @@ class BuyForm(FlaskForm):
     exit_rate = DecimalField('Exit Rate', places=5)
     exit_trade = TextField('Exit Trade Type')
     rate_diff = DecimalField('Diffence in Exit and Entry Rates', places=5)
-    profit = DecimalField('Profit made', places=5)
-    depth = DecimalField('Profit made', places=5)
+    profit = DecimalField('Profit', places=5)
+    depth = DecimalField('Maximum Distance travelled', places=5)
 
 # For Representing Sell Sheet
 class SellForm(FlaskForm):
     entry_date = DateField('Entry Date', format='%d/%m/%Y',
         validators=[DataRequired()],
     )
-    ro_num = IntegerField('Roll Over Number',
-        validators=[DataRequired()]
-    )
+    ro_num = IntegerField('Roll Over Number')
+
     order_start_date = DateField('Order Start Date', format='%d/%m/%Y',
         validators=[DataRequired()],
     )

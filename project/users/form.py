@@ -5,7 +5,8 @@ from wtforms.validators import DataRequired, Length, Email, EqualTo
 class LoginForm(FlaskForm):
     email = TextField(
         'email',
-        validators=[DataRequired(), Email(message=None), Length(min=6, max=40)]
+        validators=[DataRequired(), Email("Enter a valid email address"),
+                Length(min=6, max=40)]
     )
     password = PasswordField('Password', validators=[DataRequired()])
 
@@ -16,7 +17,8 @@ class RegisterForm(FlaskForm):
     )
     email = TextField(
         'email',
-        validators=[DataRequired(), Email(message=None), Length(min=6, max=40)]
+        validators=[DataRequired(), Email("Enter a valid email address"),
+                Length(min=6, max=40)]
     )
     password = PasswordField(
         'password',
@@ -29,7 +31,7 @@ class RegisterForm(FlaskForm):
         ]
     )
     birth_date = DateField('Date of Birth', format='%d/%m/%Y',
-        validators=[DataRequired()], 
+        validators=[DataRequired()],
     )
     # Registration data is auto filled.
     mobile = TextField(
