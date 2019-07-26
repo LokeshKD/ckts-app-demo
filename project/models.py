@@ -30,7 +30,7 @@ class BuySheet(db.Model):
     client_id = db.Column(db.Integer, ForeignKey('users.id'))
 
     def __init__(self, entry_date, ro_num, order_start_date, agreement,
-                lot_size, lot_qty, entry_rate, entry_trade, days_waiting,
+                lot_size, lot_qty, entry_rate, entry_trade, days_waiting=0,
                 exit_date=None, exit_rate=None, exit_trade=None, rate_diff=None,
                 profit=None, depth=None, client_id=None):
         self.entry_date = entry_date
@@ -75,7 +75,7 @@ class SellSheet(db.Model):
     client_id = db.Column(db.Integer, ForeignKey('users.id'))
 
     def __init__(self, entry_date, ro_num, order_start_date, agreement,
-                lot_size, lot_qty, entry_rate, entry_trade, days_waiting,
+                lot_size, lot_qty, entry_rate, entry_trade, days_waiting=0,
                 exit_date=None, exit_rate=None, exit_trade=None, rate_diff=None,
                 profit=None, depth=None, client_id=None):
         self.entry_date = entry_date

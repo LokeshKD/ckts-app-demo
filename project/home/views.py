@@ -58,7 +58,12 @@ def updateRecord(request, form, record, error, is_buy=True):
         # an Integer flied with 0
         if days > 0:
             record.days_waiting = days
-        record.rate_diff = record.exit_rate - record.entry_rate
+
+        if is_buy:
+            record.rate_diff = record.exit_rate - record.entry_rate
+        else:
+            record.rate_diff = record.entry_rate - record.exit_rate
+
         record.profit = record.lot_qty * record.lot_size * record.rate_diff
         record.depth = record.depth # Computed during "summary" evaluation
 
@@ -158,7 +163,7 @@ def sellEdit(record_id):
     sell_record = SellSheet.query.filter_by(id = record_id).first()
     form = BuyForm(request.form, obj=sell_record)
     # False here tells updateRecord to deal with Sell side flow
-    return updateRecord(request, form, buy_record, error, False)
+    return updateRecord(request, form, sell_record, error, False)
 
 ###
 # Adding a Sell Record
@@ -207,9 +212,9 @@ def sellAll():
 @home_blueprint.route('/sell/open')
 @login_required # pragma: no cover
 def sellOpen():
-    buy_records = SellSheet.query.filter_by(client_id = current_user.id
+    sell_records = SellSheet.query.filter_by(client_id = current_user.id
                                 ).filter_by(exit_date=None).all()
-    return render_template('sellOpen.html', buy_records=buy_records)
+    return render_template('sellOpen.html', sell_records=sell_records)
 
 
 # use decorators to link the function to a url

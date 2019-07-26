@@ -8,7 +8,7 @@
       <div class="container-fluid">
           <a class="nav-link" href="#" style="color:powderblue">
             <i class="fas fa-paper-plane"></i>
-            Sell Open Positions
+            Sell Positions
           </a>
 
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -80,7 +80,7 @@
           <td>  {% if record.rate_diff %} {{ record.rate_diff }} {% endif %} </td>
           <td>  {% if record.profit %} {{ record.profit }} {% endif %} </td>
           <td>  {% if record.depth %} {{ record.depth }} {% endif %} </td>
-          <td>  "Edit" </td>
+          <td>  <a href="/sell/edit/{{ record.id }}"> Edit </a> </td>
         </tr>
         {% endfor %}
       </table>
