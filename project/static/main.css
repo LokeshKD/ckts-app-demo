@@ -4,6 +4,19 @@
   background-color: #f2f6e9;
 }
 
+.features {
+  margin: 1em auto;
+  padding: 1em;
+  position: relative;
+}
+.feature-title {
+  color: #6a0400;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  /* text-transform: uppercase; */
+}
+
 .description {
   left: 50%;
   position: absolute;
@@ -60,6 +73,9 @@ th, td {
 th {
   background-color: powderblue;
   color: blue;
+}
+td {
+  font-size: 0.8rem;
 }
 
 tr:nth-child(even) {background-color: #f2f2f2;}

@@ -25,6 +25,14 @@
           <img class="nav-logo d-inline-block align-top" src="/static/BuySellBlack.jpeg" alt="" height="40" width="60">
           CK Trading Labs
         </a>
+        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+          <!-- left -->
+          <ul class="navbar-nav flex-row ml-md-auto mr-auto d-md-flex">
+            <li class="nav-item">
+              <p style="color:skyblue; font-weight:300"> {{current_user.email}} </p>
+            </li>
+          </ul>
+        </div>
           <!-- right -->
           <ul class="navbar-nav flex-row ml-md-auto d-none d-md-flex">
             <li class="nav-item nav-right-btn">
@@ -48,27 +56,21 @@
                   </div>
 
                   <ul class="list-unstyled components">
-                    <li>
+                      <li>
                         <a href="/summary">
                             <i class="fas fa-home"></i>
                             Summary
                         </a>
-                    </li>
+                      </li>
                       <li>
                           <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
                               <i class="fas fa-paper-plane"></i>
                               Buy
                           </a>
                           <ul class="collapse list-unstyled" id="homeSubmenu">
-                              <li>
-                                  <a href="/buy/open">Open Positoins</a>
-                              </li>
-                              <li>
-                                  <a href="/buy/mnth">Month Records</a>
-                              </li>
-                              <li>
-                                  <a href="/buy/all">All Records</a>
-                              </li>
+                              <li><a href="/buy/open">Open Positoins</a></li>
+                              <li><a href="/buy/mnth">Month Records</a></li>
+                              <li><a href="/buy/all">All Records</a></li>
                           </ul>
                       </li>
                       <li>
@@ -77,35 +79,14 @@
                               Sell
                           </a>
                           <ul class="collapse list-unstyled" id="pageSubmenu">
-                              <li>
-                                  <a href="/sell/open">Open Positions</a>
-                              </li>
-                              <li>
-                                  <a href="/sell/mnth">Month Records</a>
-                              </li>
-                              <li>
-                                  <a href="/sell/all">All Records</a>
-                              </li>
+                              <li>  <a href="/sell/open">Open Positions</a> </li>
+                              <li>  <a href="/sell/mnth">Month Records</a> </li>
+                              <li>  <a href="/sell/all">All Records</a> </li>
                           </ul>
                        </li>
-                       <li>
-                          <a href="/dayRecords">
-                              <i class="fas fa-copy"></i>
-                              Records
-                          </a>
-                      </li>
-                      <li>
-                          <a href="/ledger">
-                              <i class="fas fa-briefcase"></i>
-                              Legder
-                          </a>
-                      </li>
-                      <li>
-                          <a href="/life">
-                              <i class="fas fa-question"></i>
-                              Life
-                          </a>
-                      </li>
+                       <li><a href="/dayRecords"> <i class="fas fa-copy"></i> Records </a> </li>
+                       <li><a href="/ledger"> <i class="fas fa-briefcase"></i>Legder</a></li>
+                       <li><a href="/life"> <i class="fas fa-question"></i>Life</a></li>
                   </ul>
               </nav>  <!-- Sidebar -->
 

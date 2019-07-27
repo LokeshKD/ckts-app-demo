@@ -32,7 +32,67 @@ def login_required(f):
 '''
 
 ###
-# Common Helper function for both Buy and See for updation
+# Common Helper function to compute summary for both Buy and Sell
+###
+def computeSummary(records, is_buy=True):
+    # Local Variables
+    summary = {}
+    content = []
+    info = {}
+    volume = 0
+    first = True
+    prev_value = 0
+    investment = 0
+    cur_rate = 0
+    run_loss = 0
+
+    ### TODO
+    ## Get the current rate, rudimentary method
+    for record in records:
+        if first:
+            cur_rate = record.entry_rate
+            first = False
+
+        if is_buy:
+            if cur_rate > record.entry_rate:
+                cur_rate = record.entry_rate
+        else:
+            if cur_rate < record.entry_rate:
+                cur_rate = record.entry_rate
+
+    first = True
+    ## Get the summary of open Buys
+    for record in records:
+        if not first:
+            prev_value = record.entry_rate - prev_value
+        else:
+            first = False
+
+        depth = 0
+        if is_buy:
+            depth = cur_rate - record.entry_rate
+        else:
+            depth = record.entry_rate - cur_rate
+
+        b_info = {
+            "gap" : round(prev_value, 2),
+            "agreement": record.agreement,
+            "lot_qty": record.lot_qty,
+            "entry_rate": record.entry_rate,
+            "cur_rate": cur_rate,
+            "depth": round(depth, 2)
+        }
+        prev_value = record.entry_rate
+        content.append(b_info)
+        # TODO re-compute margin after getting current rate
+        volume += record.entry_rate * record.lot_qty * record.lot_size
+        run_loss += depth * record.lot_qty * record.lot_size
+
+    return content, volume, run_loss
+
+
+###
+# Common Helper function for both Buy and Sell for updation
 ###
 def updateRecord(request, form, record, error, is_buy=True):
     # According to Buy or Sell Sheet deal accordingly.
@@ -54,15 +114,21 @@ def updateRecord(request, form, record, error, is_buy=True):
         exit_date = datetime.strptime(form.exit_date._value(),"%d/%m/%Y")
         start_date = datetime.strptime(form.order_start_date._value(),"%d/%m/%Y")
         days = (exit_date - start_date).days
+
         # This is to counter a problem with SQLAlchelmy not updating
         # an Integer flied with 0
         if days > 0:
             record.days_waiting = days
-
-        if is_buy:
-            record.rate_diff = record.exit_rate - record.entry_rate
         else:
-            record.rate_diff = record.entry_rate - record.exit_rate
+            record.days_waiting = 0
+
+        # Include deduction of brokerages at the time of exit
+        # Brokerage should be calculated at both entry and exit times, though
+        # TODO: Revisit this when we get complete info about brokerae & charges
+        if is_buy:
+            record.rate_diff = record.exit_rate - record.entry_rate - (10 * record.lot_qty)
+        else:
+            record.rate_diff = record.entry_rate - record.exit_rate - (10 * record.lot_qty)
 
         record.profit = record.lot_qty * record.lot_size * record.rate_diff
         record.depth = record.depth # Computed during "summary" evaluation
@@ -221,28 +287,39 @@ def sellOpen():
 @home_blueprint.route('/summary', methods=['GET', 'POST'])   # pragma: no cover
 @login_required   # pragma: no cover
 def summary():
-    '''
-    error = None
-    form = MessageForm(request.form)
-    if form.validate_on_submit():
-        new_message = BlogPost(
-            form.title.data,
-            form.description.data,
-            current_user.id
-        )
-        db.session.add(new_message)
-        db.session.commit()
-        flash('New entry was successfully posted.')
-        return redirect(url_for('home.home'))
-    else:
-        #posts = db.session.query(BlogPost).all()
+    ###
+    # TODO
+    # Margin variables to be extracted from a database, later
+    margin_percent = 0.10
 
-    error = None
-    form = None
-    posts = None
-    '''
-    return render_template('summary.html')
-    # render_template('home.html', posts=posts, form=form, error=error)
+    # Get the open buy records
+    buy_records = BuySheet.query.filter_by(client_id = current_user.id
+                                ).filter_by(exit_date=None).all()
+    ## Get the summary of open Buys
+    b_content, b_volume, b_run_loss = computeSummary(buy_records, True)
+
+    # Get the open sell records
+    sell_records = SellSheet.query.filter_by(client_id = current_user.id
+                                ).filter_by(exit_date=None).all()
+    ## Get the summary of open Sells
+    s_content, s_volume, s_run_loss = computeSummary(sell_records, False)
+
+    ## Calculate Summary
+    #volume = (b_volume > s_volume) ? b_volume : s_volume
+    volume = (lambda: b_volume, lambda: s_volume)[s_volume > b_volume]()
+    margin = volume * margin_percent
+    run_loss = b_run_loss + s_run_loss
+    investment = margin - run_loss
+
+    summary = {
+        "margin": round(margin,2),
+        "volume": round(volume,2),
+        "run_loss": round(run_loss,2),
+        "investment": round(investment, 2)
+    }
+
+    return render_template('summary.html', b_content=b_content, s_content=s_content, summary=summary)
+
 
 @home_blueprint.route('/welcome')
 def welcome():
