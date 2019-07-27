@@ -10,7 +10,6 @@ from flask import render_template, Blueprint, flash, url_for, redirect, request
 from flask_login import login_required, current_user
 from datetime import datetime
 
-
 ###
 # Config
 ###
@@ -55,9 +54,9 @@ def buyAdd():
         )
         db.session.add(buy_entry)
         db.session.commit()
-        # TODO
-        # Now write to DaySheet
-        #
+
+        # TODO: write to DaySheet
+
         return redirect(url_for('home.buyOpen'))
     else:
         return render_template('buyAdd.html', form=form, error=error)
@@ -113,9 +112,9 @@ def sellAdd():
         )
         db.session.add(sell_entry)
         db.session.commit()
-        # TODO
-        # Now write to DaySheet
-        #
+
+        # TODO: write to DaySheet
+
         return redirect(url_for('home.sellOpen'))
     else:
         return render_template('sellAdd.html', form=form, error=error)
@@ -142,24 +141,21 @@ def sellOpen():
 @home_blueprint.route('/summary', methods=['GET', 'POST'])   # pragma: no cover
 @login_required   # pragma: no cover
 def summary():
-    ###
-    # TODO
-    # Margin variables to be extracted from a database, later
+
+    # TODO: Margin variables to be extracted from a database, later
     margin_percent = 0.10
 
-    # Get the open buy records
+    # Deal with Buys
     buy_records = BuySheet.query.filter_by(client_id = current_user.id
                                 ).filter_by(exit_date=None).all()
-    ## Get the summary of open Buys
     b_content, b_volume, b_run_loss = computeSummary(buy_records, True)
 
-    # Get the open sell records
+    # Deal with Sells
     sell_records = SellSheet.query.filter_by(client_id = current_user.id
                                 ).filter_by(exit_date=None).all()
-    ## Get the summary of open Sells
     s_content, s_volume, s_run_loss = computeSummary(sell_records, False)
 
-    ## Calculate overall Summary
+    ## The Summary
     volume = (lambda: b_volume, lambda: s_volume)[s_volume > b_volume]()
     margin = volume * margin_percent
     run_loss = b_run_loss + s_run_loss
@@ -174,8 +170,9 @@ def summary():
 
     return render_template('summary.html', b_content=b_content, s_content=s_content, summary=summary)
 
-
+###
 # Hang on routes
+###
 @home_blueprint.route('/welcome')
 def welcome():
     return render_template('welcome.html')

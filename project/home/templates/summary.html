@@ -2,10 +2,25 @@
 
 {% block content %}
 
+
+  <div class="card">
+    <h4 class="card-header" style="color:#6a0400">Summary</h4>
+    <div class="card-body">
+      {% if summary %}
+       <p1>Margin    : {{ summary["margin"] }} </p1><br>
+       <p1>Volume : {{ summary["volume"] }} </p1><br>
+       <p1>Running Loss : {{ summary["run_loss"] }} </p1><br>
+       <p1>Investment : {{ summary["investment"] }} </p1><br>
+      {% endif %}
+    </div>
+  </div> <!-- Summary -->
+
+
 <div class="features">
   <div class="row">
 
-    <div class="col-lg-4 col-md-4 col-sm-12">
+    <div class="col-lg-6 col-md-6 col-sm-12">
+      <div class="card">
       <h3 class="feature-title">Buy Positions</h3>
         <table>
           <col width="30">
@@ -36,9 +51,11 @@
           </tr>
           {% endfor %}
         </table>
+      </div> <!-- card -->
     </div>
 
-    <div class="col-lg-4 col-md-4 col-sm-12">
+    <div class="col-lg-6 col-md-6 col-sm-12">
+      <div class="card">
       <h3 class="feature-title">Sell Positions</h3>
         <table>
           <col width="30">
@@ -69,28 +86,8 @@
           </tr>
           {% endfor %}
         </table>
+      </div> <!-- card -->
     </div> <!-- Sell Positions -->
-
-    <div class="col-lg-4 col-md-4 col-sm-12">
-      <h3 class="feature-title">Summary</h3>
-      <table>
-        <tr> <!-- Header -->
-          <th>Current Status</th>
-        </tr>
-        <tr>  <td>Snapshot </td>  </tr>
-      </table>
-      <br>
-      <div style="text-align:center">
-        {% if summary %}
-         <p> <strong>Margin : {{ summary["margin"] }} </strong></p>
-         <p> <strong>Volume : {{ summary["volume"] }} </strong></p>
-         <p> <strong>Running Loss : {{ summary["run_loss"] }} </strong></p>
-         <p> <strong>Investment : {{ summary["investment"] }} </strong></p>
-        {% endif %}
-        <br>
-      </div>
-
-    </div> <!-- Summary -->
 
   </div> <!-- row -->
 </div> <!-- features -->
