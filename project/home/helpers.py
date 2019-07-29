@@ -27,18 +27,16 @@ def login_required(f):
 ###
 def computeSummary(records, is_buy=True):
     # Local Variables
-    summary = {}
     content = []
     info = {}
     volume = 0
-    first = True
     prev_value = 0
-    investment = 0
     cur_rate = 0
     run_loss = 0
+    unq_agreement = []
 
     ### TODO
-    ## Get the current rate, rudimentary method
+    ## Get unique agreemnt and current rate, rudimentary method
     for record in records:
         if cur_rate == 0:
             cur_rate = record.entry_rate
@@ -50,14 +48,14 @@ def computeSummary(records, is_buy=True):
             if cur_rate < record.entry_rate:
                 cur_rate = record.entry_rate
 
+        if record.agreement.upper() not in unq_agreement:
+            unq_agreement.append(record.agreement)
+
     ## Get the summary of open Buys
     for record in records:
-        if not first:
+        if not prev_value:
             prev_value = record.entry_rate - prev_value
-        else:
-            first = False
 
-        depth = 0
         if is_buy:
             depth = cur_rate - record.entry_rate
         else:
@@ -77,7 +75,7 @@ def computeSummary(records, is_buy=True):
         volume += record.entry_rate * record.lot_qty * record.lot_size
         run_loss += depth * record.lot_qty * record.lot_size
 
-    return content, volume, run_loss
+    return content, volume, run_loss, unq_agreement
 
 
 ###

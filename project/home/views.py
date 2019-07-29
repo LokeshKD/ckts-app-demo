@@ -143,23 +143,25 @@ def sellOpen():
 def summary():
 
     # TODO: Margin variables to be extracted from a database, later
-    margin_percent = 0.10
+    margin_percent = 0.08
+    unq_agreements = []
 
     # Deal with Buys
     buy_records = BuySheet.query.filter_by(client_id = current_user.id
                                 ).filter_by(exit_date=None).all()
-    b_content, b_volume, b_run_loss = computeSummary(buy_records, True)
+    b_content, b_volume, b_run_loss, b_u_g = computeSummary(buy_records, True)
 
     # Deal with Sells
     sell_records = SellSheet.query.filter_by(client_id = current_user.id
                                 ).filter_by(exit_date=None).all()
-    s_content, s_volume, s_run_loss = computeSummary(sell_records, False)
+    s_content, s_volume, s_run_loss, s_u_g = computeSummary(sell_records, False)
 
     ## The Summary
     volume = (lambda: b_volume, lambda: s_volume)[s_volume > b_volume]()
     margin = volume * margin_percent
     run_loss = b_run_loss + s_run_loss
     investment = margin - run_loss
+    unq_agreements = list(set(b_u_g + s_u_g))
 
     summary = {
         "margin": round(margin,5),
@@ -168,7 +170,8 @@ def summary():
         "investment": round(investment,5)
     }
 
-    return render_template('summary.html', b_content=b_content, s_content=s_content, summary=summary)
+    return render_template('summary.html', b_content=b_content,
+                s_content=s_content, summary=summary, agreements=unq_agreements)
 
 ###
 # Hang on routes
