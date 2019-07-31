@@ -4,7 +4,7 @@
 from project import app, db
 from project.models import BuySheet, SellSheet, DaySheet, BalSheet, LifeSheet, User
 from project.home.forms import BuyForm, SellForm, DayForm, BalForm, LifeForm, SummaryForm
-from project.home.helpers import updateRecord, computeSummary
+from project.home.helpers import updateRecord, computeSummary, addDayRecord
 
 from flask import render_template, Blueprint, flash, url_for, redirect, request
 from flask_login import login_required, current_user
@@ -28,8 +28,13 @@ def buyEdit(record_id):
     error = None
     buy_record = BuySheet.query.filter_by(id = record_id).first()
     form = BuyForm(request.form, obj=buy_record)
-    # True here tells updateRecord to deal with Buy side flow
-    return updateRecord(request, form, buy_record, error, True)
+
+    if request.method == 'POST' and form.validate_on_submit():
+        # False here tells updateRecord to deal with Sell side flow
+        updateRecord(form, buy_record, True)
+        return redirect(url_for('home.buyOpen'))
+    else:
+        return render_template('buyEdit.html', form=form, error=error)
 
 
 # Adding a Buy Record
@@ -52,29 +57,8 @@ def buyAdd():
             form.entry_trade.data,
             client_id=current_user.id
         )
-
-        # Write to DaySheet
-        # Get the last record for this user.
-        day_record = DaySheet.query.filter_by(client_id = current_user.id
-                            ).order_by(DaySheet.id.desc()).first()
-        total_profit = 0
-        if day_record:
-            total_profit = day_record.total_profit
-
-        day_entry = DaySheet(
-            form.entry_date.data,
-            form.agreement.data,
-            form.lot_size.data,
-            form.lot_qty.data,
-            form.entry_rate.data,
-            0, # Profit for addition is always 0
-            total_profit,
-            client_id=current_user.id
-        )
-
-        db.session.add(buy_entry)
-        db.session.add(day_entry)
-        db.session.commit()
+        # Add it to both Sell and Day Records.
+        addDayRecord(form, buy_entry)
 
         return redirect(url_for('home.buyOpen'))
     else:
@@ -106,8 +90,14 @@ def sellEdit(record_id):
     error = None
     sell_record = SellSheet.query.filter_by(id = record_id).first()
     form = BuyForm(request.form, obj=sell_record)
-    # False here tells updateRecord to deal with Sell side flow
-    return updateRecord(request, form, sell_record, error, False)
+
+    if request.method == 'POST' and form.validate_on_submit():
+        # False here tells updateRecord to deal with Sell side flow
+        updateRecord(form, sell_record, False)
+        return redirect(url_for('home.sellOpen'))
+    else:
+        return render_template('sellEdit.html', form=form, error=error)
+
 
 # Adding a Sell Record
 @home_blueprint.route('/sell/add', methods=['GET', 'POST'])
@@ -129,29 +119,8 @@ def sellAdd():
             form.entry_trade.data,
             client_id=current_user.id
         )
-
-        # Write to DaySheet
-        # Get the last record for this user.
-        day_record = DaySheet.query.filter_by(client_id = current_user.id
-                            ).order_by(DaySheet.id.desc()).first()
-        total_profit = 0
-        if day_record:
-            total_profit = day_record.total_profit
-
-        day_entry = DaySheet(
-            form.entry_date.data,
-            form.agreement.data,
-            form.lot_size.data,
-            form.lot_qty.data,
-            form.entry_rate.data,
-            0, # Profit for addition is always 0
-            total_profit,
-            client_id=current_user.id
-        )
-
-        db.session.add(sell_entry)
-        db.session.add(day_entry)
-        db.session.commit()
+        # Add it to both Sell and Day Records.
+        addDayRecord(form, sell_entry)
 
         return redirect(url_for('home.sellOpen'))
     else:
@@ -175,7 +144,7 @@ def sellOpen():
     return render_template('sellOpen.html', sell_records=sell_records)
 
 
-# use decorators to link the function to a url
+# Summary Page
 @home_blueprint.route('/summary', methods=['GET', 'POST'])   # pragma: no cover
 @login_required   # pragma: no cover
 def summary():

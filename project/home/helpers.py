@@ -53,7 +53,7 @@ def computeSummary(records, is_buy=True):
 
     ## Get the summary of open Buys
     for record in records:
-        if not prev_value == 0:
+        if not prev_value:
             prev_value = record.entry_rate - prev_value
 
         if is_buy:
@@ -79,71 +79,87 @@ def computeSummary(records, is_buy=True):
 
 
 ###
-# Common Helper function for both Buy and Sell for updation
+# Common Helper function for both Buy and Sell for updating
+#  closing of a Position and making an entry into DaySheet
 ###
-def updateRecord(request, form, record, error, is_buy=True):
+def updateRecord(form, record, is_buy=True):
     # According to Buy or Sell Sheet deal accordingly.
-    if request.method == 'POST' and form.validate_on_submit():
+    record.entry_date = form.entry_date.data
+    record.ro_num = form.ro_num.data
+    record.order_start_date = form.order_start_date.data
+    record.agreement = form.agreement.data
+    record.lot_size = form.lot_size.data
+    record.lot_qty = form.lot_qty.data
+    record.entry_rate = form.entry_rate.data
+    record.entry_trade = form.entry_trade.data
+    record.exit_date = form.exit_date.data
+    record.exit_rate = form.exit_rate.data
+    record.exit_trade = form.exit_trade.data
 
-        record.entry_date = form.entry_date.data
-        record.ro_num = form.ro_num.data
-        record.order_start_date = form.order_start_date.data
-        record.agreement = form.agreement.data
-        record.lot_size = form.lot_size.data
-        record.lot_qty = form.lot_qty.data
-        record.entry_rate = form.entry_rate.data
-        record.entry_trade = form.entry_trade.data
-        record.exit_date = form.exit_date.data
-        record.exit_rate = form.exit_rate.data
-        record.exit_trade = form.exit_trade.data
+    # Compute the values
+    exit_date = datetime.strptime(form.exit_date._value(),"%d/%m/%Y")
+    start_date = datetime.strptime(form.order_start_date._value(),"%d/%m/%Y")
+    days = (exit_date - start_date).days
 
-        # Compute the values
-        exit_date = datetime.strptime(form.exit_date._value(),"%d/%m/%Y")
-        start_date = datetime.strptime(form.order_start_date._value(),"%d/%m/%Y")
-        days = (exit_date - start_date).days
-
-        # This is to counter a problem with SQLAlchelmy not updating
-        # an Integer flied with 0
-        if days > 0:
-            record.days_waiting = days
-        else:
-            record.days_waiting = 0
-
-        # Include deduction of brokerages at the time of exit
-        # Brokerage should be calculated at both entry and exit times, though
-        # TODO: Revisit this when we get complete info about brokerae & charges
-        if is_buy:
-            record.rate_diff = record.exit_rate - record.entry_rate - (10 * record.lot_qty)
-        else:
-            record.rate_diff = record.entry_rate - record.exit_rate - (10 * record.lot_qty)
-
-        record.profit = record.lot_qty * record.lot_size * record.rate_diff
-
-        # Write to DaySheet
-        # Get the last record for this user.
-        day_record = DaySheet.query.filter_by(client_id = current_user.id
-                        ).order_by(DaySheet.id.desc()).first()
-
-        day_entry = DaySheet(
-            form.entry_date.data,
-            form.agreemnt.data,
-            form.lot_size.data,
-            form.lot_qty.data,
-            form.exit_rate.data,
-            record.profit,
-            day_record.total_profit + record.profit,
-            client_id=current_user.id
-        )
-
-        db.session.add(day_entry)
-        db.session.commit()
-
-        if is_buy:
-            return redirect(url_for('home.buyOpen'))
-        else:
-            return redirect(url_for('home.sellOpen'))
+    # This is to counter a problem with SQLAlchelmy not updating
+    # an Integer flied with 0
+    if days > 0:
+        record.days_waiting = days
     else:
-        if is_buy:
-            return render_template('buyEdit.html', form=form, error=error)
-        else:
-            return render_template('sellEdit.html', form=form, error=error)
+        record.days_waiting = 0
+
+    # Include deduction of brokerages at the time of exit
+    # Brokerage should be calculated at both entry and exit times, though
+    # TODO: Revisit this when we get complete info about brokerae & charges
+    if is_buy:
+        record.rate_diff = record.exit_rate - record.entry_rate - (10 * record.lot_qty)
+    else:
+        record.rate_diff = record.entry_rate - record.exit_rate - (10 * record.lot_qty)
+
+    record.profit = record.lot_qty * record.lot_size * record.rate_diff
+
+    # Write to DaySheet
+    # Get the last record for this user.
+    day_record = DaySheet.query.filter_by(client_id = current_user.id
+                    ).order_by(DaySheet.id.desc()).first()
+
+    day_entry = DaySheet(
+        form.entry_date.data,
+        form.agreemnt.data,
+        form.lot_size.data,
+        form.lot_qty.data,
+        form.exit_rate.data,
+        record.profit,
+        day_record.total_profit + record.profit,
+        client_id=current_user.id
+    )
+
+    db.session.add(day_entry)
+    db.session.commit()
+
+###
+# Add a Day record for each buy/sell NEW entry
+###
+def addDayRecord(form, entry):
+    # Write to DaySheet
+    # Get the last record for this user.
+    day_record = DaySheet.query.filter_by(client_id = current_user.id
+                        ).order_by(DaySheet.id.desc()).first()
+    total_profit = 0
+    if day_record:
+        total_profit = day_record.total_profit
+
+    day_entry = DaySheet(
+        form.entry_date.data,
+        form.agreement.data,
+        form.lot_size.data,
+        form.lot_qty.data,
+        form.entry_rate.data,
+        0, # Profit for addition is always 0
+        total_profit,
+        client_id=current_user.id
+    )
+
+    db.session.add(entry)
+    db.session.add(day_entry)
+    db.session.commit()
