@@ -1,0 +1,58 @@
+{% extends "basein.html" %}
+
+{% block content %}
+
+  <div class="container">
+
+    <nav class="navbar navbar-expand-md navbar-light bg-light" style="height:40px">
+      <div class="container-fluid">
+          <a class="nav-link" href="#" style="color:powderblue">
+            <i class="fas fa-paper-plane"></i>
+            Day Records
+          </a>
+      </div> <!-- container-fluid -->
+    </nav>
+
+    <!-- Contents of Buy Table -->
+    <div style="overflow-x:auto;">
+      <table>
+        <col width="80">
+        <col width="100">
+        <col width="40">
+        <col width="40">
+        <col width="80">
+        <col width="80">
+        <col width="80">
+        <col width="100">
+
+        <tr> <!-- Header -->
+          <th>Entry Date</th>
+          <th>Agreement</th>
+          <th>Lot Size</th>
+          <th>Lot Qty</th>
+          <th>Trade Rate</th>
+          <th>Trade Type</th>
+          <th>Profit</th>
+          <th>Total Porfit</th>
+        </tr>
+
+        <!-- Table Data from backend -->
+        {% for record in day_records %}
+        <tr>
+          <td>  {{ record.entry_date }} </td>
+          <td>  {{ record.agreement }} </td>
+          <td>  {{ record.lot_size }} </td>
+          <td>  {{ record.lot_qty }} </td>
+          <td>  {{ record.trade_rate }} </td>
+          <td>  {{ record.trade_type }} </td>
+          <td>  {{ record.profit }} </td>
+          <td>  {{ record.total_profit }} </td>
+          <!--<td>  <a href="/day/edit/{{ record.id }}"> Edit </a> </td> -->
+        </tr>
+        {% endfor %}
+      </table>
+    </div> <!-- Table div -->
+
+  </div> <!-- container -->
+
+{% endblock %}

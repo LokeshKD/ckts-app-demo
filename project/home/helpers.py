@@ -2,8 +2,10 @@
 # Imports
 ###
 from project import db
+from project.models import DaySheet
 
 from flask import render_template, redirect, request
+from flask_login import current_user
 from datetime import datetime
 
 ###
@@ -124,13 +126,14 @@ def updateRecord(form, record, is_buy=True):
                     ).order_by(DaySheet.id.desc()).first()
 
     day_entry = DaySheet(
-        form.entry_date.data,
-        form.agreemnt.data,
+        form.exit_date.data,
+        form.agreement.data,
         form.lot_size.data,
         form.lot_qty.data,
         form.exit_rate.data,
+        form.exit_trade.data,
         record.profit,
-        day_record.total_profit + record.profit,
+        day_record.total_profit + float(record.profit),
         client_id=current_user.id
     )
 
@@ -155,6 +158,7 @@ def addDayRecord(form, entry):
         form.lot_size.data,
         form.lot_qty.data,
         form.entry_rate.data,
+        form.entry_trade.data,
         0, # Profit for addition is always 0
         total_profit,
         client_id=current_user.id

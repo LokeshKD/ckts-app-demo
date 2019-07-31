@@ -151,7 +151,6 @@ def summary():
 
     # TODO: Margin variables to be extracted from a database, later
     margin_percent = 0.08
-    unq_agreements = []
 
     form = SummaryForm(request.form)
     # Deal with Buys
@@ -181,6 +180,13 @@ def summary():
 
     return render_template('summary.html', form=form, b_content=b_content,
                 s_content=s_content, summary=summary, agreements=agrmnts)
+
+# dayRecords Page
+@home_blueprint.route('/dayRecords', methods=['GET'])   # pragma: no cover
+@login_required   # pragma: no cover
+def dayRecords():
+    day_records = DaySheet.query.filter_by(client_id = current_user.id).all()
+    return render_template('dayRecords.html', day_records=day_records)
 
 ###
 # Hang on routes

@@ -85,7 +85,10 @@ class DayForm(FlaskForm):
     lot_qty = IntegerField('Lot Quantity',
         validators=[DataRequired()]
     )
-    trade = TextField('Trade Type Executed',
+    trade_rate = DecimalField('Trade Rate',
+        validators=[DataRequired()]
+    )
+    trade_type = TextField('Trade Type Executed',
         validators=[DataRequired()]
     )
     profit = DecimalField('Profit made for this Trade', places=5)

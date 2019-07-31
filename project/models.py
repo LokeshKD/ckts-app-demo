@@ -106,18 +106,20 @@ class DaySheet(db.Model):
     lot_size = db.Column(db.Integer, nullable=False)
     lot_qty = db.Column(db.Integer, nullable=False)
     trade_rate = db.Column(db.Float, nullable=False)
+    trade_type = db.Column(db.String, nullable=False)
     profit = db.Column(db.Float)
     total_profit = db.Column(db.Float)
 
     client_id = db.Column(db.Integer, ForeignKey('users.id'))
 
     def __init__(self, entry_date, agreement, lot_size, lot_qty, trade_rate,
-                profit=0, total_profit=0, client_id=None):
+                trade_type, profit=0, total_profit=0, client_id=None):
         self.entry_date = entry_date
         self.agreement = agreement
         self.lot_size = lot_size
         self.lot_qty = lot_qty
         self.trade_rate = trade_rate
+        self.trade_type = trade_type
         self.profit = profit
         self.total_profit = total_profit
         self.client_id = client_id
