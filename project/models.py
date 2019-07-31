@@ -111,8 +111,8 @@ class DaySheet(db.Model):
 
     client_id = db.Column(db.Integer, ForeignKey('users.id'))
 
-    def __init__(self, entry_date, agreeement, lot_size, lot_qty, trade_rate,
-                profit=0, total_profit=0):
+    def __init__(self, entry_date, agreement, lot_size, lot_qty, trade_rate,
+                profit=0, total_profit=0, client_id=None):
         self.entry_date = entry_date
         self.agreement = agreement
         self.lot_size = lot_size
@@ -120,6 +120,7 @@ class DaySheet(db.Model):
         self.trade_rate = trade_rate
         self.profit = profit
         self.total_profit = total_profit
+        self.client_id = client_id
 
 
 # Balance Records
@@ -147,7 +148,7 @@ class BalSheet(db.Model):
 
     def __init__(self, entry_date, bank_name, credit, tot_credit, debit,
                 tot_debit, net_credit, book_profit, open_buys, open_sells,
-                volume, run_loss, net_profit, net_amount):
+                volume, run_loss, net_profit, net_amount, client_id):
         self.entry_date = entry_date
         self.bank_name = bank_name
         self.credit = credit
@@ -162,6 +163,7 @@ class BalSheet(db.Model):
         self.run_loss = run_loss
         self.net_profit = net_profit
         self.net_amount = net_amount
+        self.client_id = client_id
 
 
 # Life Records
@@ -178,12 +180,14 @@ class LifeSheet(db.Model):
 
     client_id = db.Column(db.Integer, ForeignKey('users.id'))
 
-    def __init__(self, entry_date, max_open_pos, net_amount, margin_used, life):
+    def __init__(self, entry_date, max_open_pos, net_amount, margin_used,
+                    life, client_id):
         self.entry_date = entry_date
         self.max_open_pos = max_open_pos
         self.net_amount = net_amount
         self.margin_used = margin_used
-        sel.life = life
+        self.life = life
+        self.client_id = client_id
 
 # User Records
 class User(db.Model):

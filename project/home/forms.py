@@ -153,3 +153,9 @@ class LifeForm(FlaskForm):
     life = DecimalField('Life Remaining in Points', places=5,
         validators=[DataRequired()]
     )
+
+# Summary Form
+class SummaryForm(FlaskForm):
+    cur_month = DecimalField(validators=[DataRequired()])
+    next_month = DecimalField()
+    later_month = DecimalField()

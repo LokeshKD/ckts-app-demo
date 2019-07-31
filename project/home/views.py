@@ -3,7 +3,7 @@
 ###
 from project import app, db
 from project.models import BuySheet, SellSheet, DaySheet, BalSheet, LifeSheet, User
-from project.home.forms import BuyForm, SellForm, DayForm, BalForm, LifeForm
+from project.home.forms import BuyForm, SellForm, DayForm, BalForm, LifeForm, SummaryForm
 from project.home.helpers import updateRecord, computeSummary
 
 from flask import render_template, Blueprint, flash, url_for, redirect, request
@@ -29,7 +29,7 @@ def buyEdit(record_id):
     buy_record = BuySheet.query.filter_by(id = record_id).first()
     form = BuyForm(request.form, obj=buy_record)
     # True here tells updateRecord to deal with Buy side flow
-    return updateRecord(request,form, buy_record, error, True)
+    return updateRecord(request, form, buy_record, error, True)
 
 
 # Adding a Buy Record
@@ -52,10 +52,29 @@ def buyAdd():
             form.entry_trade.data,
             client_id=current_user.id
         )
-        db.session.add(buy_entry)
-        db.session.commit()
 
-        # TODO: write to DaySheet
+        # Write to DaySheet
+        # Get the last record for this user.
+        day_record = DaySheet.query.filter_by(client_id = current_user.id
+                            ).order_by(DaySheet.id.desc()).first()
+        total_profit = 0
+        if day_record:
+            total_profit = day_record.total_profit
+
+        day_entry = DaySheet(
+            form.entry_date.data,
+            form.agreement.data,
+            form.lot_size.data,
+            form.lot_qty.data,
+            form.entry_rate.data,
+            0, # Profit for addition is always 0
+            total_profit,
+            client_id=current_user.id
+        )
+
+        db.session.add(buy_entry)
+        db.session.add(day_entry)
+        db.session.commit()
 
         return redirect(url_for('home.buyOpen'))
     else:
@@ -110,10 +129,29 @@ def sellAdd():
             form.entry_trade.data,
             client_id=current_user.id
         )
-        db.session.add(sell_entry)
-        db.session.commit()
 
-        # TODO: write to DaySheet
+        # Write to DaySheet
+        # Get the last record for this user.
+        day_record = DaySheet.query.filter_by(client_id = current_user.id
+                            ).order_by(DaySheet.id.desc()).first()
+        total_profit = 0
+        if day_record:
+            total_profit = day_record.total_profit
+
+        day_entry = DaySheet(
+            form.entry_date.data,
+            form.agreement.data,
+            form.lot_size.data,
+            form.lot_qty.data,
+            form.entry_rate.data,
+            0, # Profit for addition is always 0
+            total_profit,
+            client_id=current_user.id
+        )
+
+        db.session.add(sell_entry)
+        db.session.add(day_entry)
+        db.session.commit()
 
         return redirect(url_for('home.sellOpen'))
     else:
@@ -146,6 +184,7 @@ def summary():
     margin_percent = 0.08
     unq_agreements = []
 
+    form = SummaryForm(request.form)
     # Deal with Buys
     buy_records = BuySheet.query.filter_by(client_id = current_user.id
                                 ).filter_by(exit_date=None).all()
@@ -161,7 +200,8 @@ def summary():
     margin = volume * margin_percent
     run_loss = b_run_loss + s_run_loss
     investment = margin - run_loss
-    unq_agreements = list(set(b_u_g + s_u_g))
+    agrmnts = list(set(b_u_g + s_u_g))
+    #unq_agreements = sorted(agrmnts, key=lambda agrmnt: datetime.strptime(agrmnt, "%d/%b/%Y"))
 
     summary = {
         "margin": round(margin,5),
@@ -170,8 +210,8 @@ def summary():
         "investment": round(investment,5)
     }
 
-    return render_template('summary.html', b_content=b_content,
-                s_content=s_content, summary=summary, agreements=unq_agreements)
+    return render_template('summary.html', form=form, b_content=b_content,
+                s_content=s_content, summary=summary, agreements=agrmnts)
 
 ###
 # Hang on routes

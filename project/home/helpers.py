@@ -53,7 +53,7 @@ def computeSummary(records, is_buy=True):
 
     ## Get the summary of open Buys
     for record in records:
-        if not prev_value:
+        if not prev_value == 0:
             prev_value = record.entry_rate - prev_value
 
         if is_buy:
@@ -118,13 +118,26 @@ def updateRecord(request, form, record, error, is_buy=True):
             record.rate_diff = record.entry_rate - record.exit_rate - (10 * record.lot_qty)
 
         record.profit = record.lot_qty * record.lot_size * record.rate_diff
-        record.depth = record.depth # Computed during "summary" evaluation
 
+        # Write to DaySheet
+        # Get the last record for this user.
+        day_record = DaySheet.query.filter_by(client_id = current_user.id
+                        ).order_by(DaySheet.id.desc()).first()
+
+        day_entry = DaySheet(
+            form.entry_date.data,
+            form.agreemnt.data,
+            form.lot_size.data,
+            form.lot_qty.data,
+            form.exit_rate.data,
+            record.profit,
+            day_record.total_profit + record.profit,
+            client_id=current_user.id
+        )
+
+        db.session.add(day_entry)
         db.session.commit()
 
-        # TODO
-        # Now write to DaySheet
-        #
         if is_buy:
             return redirect(url_for('home.buyOpen'))
         else:
