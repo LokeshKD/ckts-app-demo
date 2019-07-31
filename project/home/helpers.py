@@ -53,7 +53,7 @@ def computeSummary(records, is_buy=True):
 
     ## Get the summary of open Buys
     for record in records:
-        if not prev_value:
+        if not prev_value == 0:
             prev_value = record.entry_rate - prev_value
 
         if is_buy:
