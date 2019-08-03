@@ -2,11 +2,11 @@
 # Imports
 ###
 from project import db
-from project.models import DaySheet
+from project.models import DaySheet, SummarySheet, BuySheet, SellSheet
 
-from flask import render_template, redirect, request
+#from flask import render_template, redirect, request
 from flask_login import current_user
-from datetime import datetime
+from datetime import datetime, date
 
 ###
 # Helper Functions
@@ -23,67 +23,153 @@ def login_required(f):
             return redirect(url_for('users.login'))
     return wrap
 '''
+####
+# Retun a list of 3 nifty agreements. Current, Next and Later
+# Each are in the format "Nifty Aug 19" ; an example
+def getNiftyAgreements():
+    # Simple solution for overflow.
+    months = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
+                "Sep", "Oct", "Nov", "Dec", "Jan", "Feb" ]
 
-###
-# Common Helper function to compute summary for both Buy and Sell
-###
-def computeSummary(records, is_buy=True):
-    # Local Variables
-    content = []
-    info = {}
+    cur_month = datetime.today().month
+    yr = datetime.today().year - 2000 # two digit year
+    years = [str(yr) for i in range(3)]
+
+    # Case for [19, 19, 20]
+    if cur_month == 11:
+        years[2] = str(yr+1)
+    # Case for [19, 20, 20]
+    if cur_month == 12:
+        years[1:3] = [str(yr+1) for i in range(1,3)]
+
+    agms = ["Nifty "+i for i in months[cur_month-1:cur_month+2]]
+    return [agms[i] + " " + years[i] for i in range(3)]
+
+
+####
+# Add a default Summary Sheet
+def addDefaultSummary(agms):
+    ## Initialize
+    entry = SummarySheet(
+                0, 0, agms[0], 0, agms[1], 0, agms[2], 0, current_user.id
+            )
+    db.session.add(entry)
+    db.session.commit()
+    return entry
+
+####
+# pre-compute summary with proper data.
+def preComputeSummary():
+    agms = getNiftyAgreements()
+    summary = SummarySheet.query.filter_by(client_id = current_user.id).first()
+    if not summary:
+        summary = addDefaultSummary(agms)
+    return agms, summary
+
+####
+# Get rate based on value stored for THE Agreement
+def getRate(agrmnt, summary):
+    # get the month in smallcase
+    mnth = agrmnt.split()[1].lower()
+
+    if mnth in summary.first_label.lower():
+        return summary.first_rate
+    if mnth in summary.second_label.lower():
+        return summary.second_rate
+    if mnth in summary.third_label.lower():
+        return summary.third_rate
+    # Something is wrong
+    return 0
+
+####
+# Update depth of each record and return
+# volume and running loss of positions combined
+def updateDepth(records, summary, is_buy=True):
+    # Locals
     volume = 0
-    prev_value = 0
-    cur_rate = 0
     run_loss = 0
-    unq_agreement = []
+    num = 0
 
-    ### TODO
-    ## Get unique agreemnt and current rate, rudimentary method
     for record in records:
-        if cur_rate == 0:
-            cur_rate = record.entry_rate
+        num += 1
+        depth = 0
+        cur_rate = getRate(record.agreement, summary)
 
         if is_buy:
-            if cur_rate > record.entry_rate:
-                cur_rate = record.entry_rate
+            depth = float(cur_rate) - record.entry_rate
         else:
-            if cur_rate < record.entry_rate:
-                cur_rate = record.entry_rate
+            depth = record.entry_rate - float(cur_rate)
 
-        if record.agreement.upper() not in unq_agreement:
-            unq_agreement.append(record.agreement)
+        if record.depth > depth:
+            record.depth = round(depth, 2)
+
+        volume += record.entry_rate * record.lot_qty * record.lot_size
+        run_loss += record.depth * record.lot_qty * record.lot_size
+
+    return num, volume, run_loss
+
+####
+# Write Summary; alongside update buy and sell records depth
+def writeSummary(form, scrips, summary):
+
+    summary.first_label = scrips[0]
+    summary.first_rate = form.cur_month.data
+    summary.second_label = scrips[1]
+    summary.second_rate = form.next_month.data
+    summary.third_label = scrips[2]
+    summary.third_rate = form.later_month.data
+
+    # Deal with Buys
+    buy_records = BuySheet.query.filter_by(client_id = current_user.id
+                                ).filter_by(exit_date=None).all()
+    b_num, b_vol, b_loss = updateDepth(buy_records, summary, True)
+
+    # Deal with Sells
+    sell_records = SellSheet.query.filter_by(client_id = current_user.id
+                                ).filter_by(exit_date=None).all()
+    s_num, s_vol, s_loss = updateDepth(sell_records, summary, False)
+
+    summary.volume = (lambda: b_vol, lambda: s_vol)[s_vol > b_vol]()
+    summary.run_loss = b_loss + s_loss
+
+    db.session.commit()
+    return b_num, s_num
+
+####
+# Common Helper function to compute summary for both Buy and Sell
+def computeSummary(records, str_sum):
+    # Local Variables
+    content = []
+    prev_value = 0
 
     ## Get the summary of open Buys
     for record in records:
         if not prev_value == 0:
             prev_value = record.entry_rate - prev_value
 
-        if is_buy:
-            depth = cur_rate - record.entry_rate
-        else:
-            depth = record.entry_rate - cur_rate
+        cur_rate = getRate(record.agreement, str_sum)
+
+        if not record.depth:
+            record.depth = 0
 
         b_info = {
             "gap" : round(prev_value, 2),
             "agreement": record.agreement,
             "lot_qty": record.lot_qty,
-            "entry_rate": record.entry_rate,
-            "cur_rate": cur_rate,
-            "depth": round(depth, 2)
+            "entry_rate": round(record.entry_rate, 2),
+            "cur_rate": round(cur_rate, 2),
+            "depth": round(record.depth, 2)
         }
         prev_value = record.entry_rate
         content.append(b_info)
-        # TODO re-compute margin after getting prorper cur_rate
-        volume += record.entry_rate * record.lot_qty * record.lot_size
-        run_loss += depth * record.lot_qty * record.lot_size
 
-    return content, volume, run_loss, unq_agreement
+    return content
 
 
-###
+####
 # Common Helper function for both Buy and Sell for updating
 #  closing of a Position and making an entry into DaySheet
-###
+####
 def updateRecord(form, record, is_buy=True):
     # According to Buy or Sell Sheet deal accordingly.
     record.entry_date = form.entry_date.data
@@ -140,9 +226,9 @@ def updateRecord(form, record, is_buy=True):
     db.session.add(day_entry)
     db.session.commit()
 
-###
+####
 # Add a Day record for each buy/sell NEW entry
-###
+####
 def addDayRecord(form, entry):
     # Write to DaySheet
     # Get the last record for this user.

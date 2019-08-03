@@ -191,6 +191,37 @@ class LifeSheet(db.Model):
         self.life = life
         self.client_id = client_id
 
+
+#Summary records
+class SummarySheet(db.Model):
+
+    __tablename__ = 'summary_sheet'
+
+    id = db.Column(db.Integer, primary_key=True)
+    volume = db.Column(db.Float, nullable=False)
+    run_loss = db.Column(db.Float, nullable=False)
+    first_label = db.Column(db.String, nullable=False)
+    first_rate = db.Column(db.Float, nullable=False)
+    second_label = db.Column(db.String, nullable=False)
+    second_rate = db.Column(db.Float, nullable=False)
+    third_label = db.Column(db.String, nullable=False)
+    third_rate = db.Column(db.Float, nullable=False)
+
+    client_id = db.Column(db.Integer, ForeignKey('users.id'))
+
+    def __init__(self, volume, run_loss, first_label, first_rate, second_label,
+                second_rate, third_label, third_rate, client_id):
+        self.volume = volume
+        self.run_loss = run_loss
+        self.first_label = first_label
+        self.first_rate = first_rate
+        self.second_label = second_label
+        self.second_rate = second_rate
+        self.third_label = third_label
+        self.third_rate = third_rate
+        self.client_id = client_id
+
+
 # User Records
 class User(db.Model):
 

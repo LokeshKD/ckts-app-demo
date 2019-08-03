@@ -4,7 +4,7 @@
 from flask import Flask, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 import os
 
 
@@ -32,7 +32,10 @@ login_manager.login_view = "users.login"
 @app.errorhandler(404)
 def page_not_found(e):
     flash("Page you were looking for does not exist!")
-    return redirect(url_for('home.welcome'))
+    if current_user.is_authenticated:
+        return redirect(url_for('home.summary'))
+    else:
+        return redirect(url_for('home.welcome'))
 
 # All unautorized accesses are directed to welcome page
 @login_manager.unauthorized_handler

@@ -2,11 +2,13 @@
 # Imports
 ###
 from project import app, db
-from project.models import BuySheet, SellSheet, DaySheet, BalSheet, LifeSheet, User
-from project.home.forms import BuyForm, SellForm, DayForm, BalForm, LifeForm, SummaryForm
-from project.home.helpers import updateRecord, computeSummary, addDayRecord
+from project.models import (BuySheet, SellSheet, DaySheet, LifeSheet, User)
+from project.home.forms import (BuyForm, SellForm, DayForm, LifeForm, SummaryForm)
+from project.home.helpers import (updateRecord, computeSummary, addDayRecord,
+                                    preComputeSummary, writeSummary)
+from project.home.dayHelpers import writeLedgerLife
 
-from flask import render_template, Blueprint, flash, url_for, redirect, request
+from flask import Blueprint, flash, render_template, url_for, redirect, request
 from flask_login import login_required, current_user
 from datetime import datetime
 
@@ -20,6 +22,7 @@ home_blueprint = Blueprint('home', __name__,
 # Routes
 ###
 
+####
 # Editing a Buy Record
 @home_blueprint.route('/buy/edit/<int:record_id>', methods=['GET', 'POST'])
 @login_required # pragma: no cover
@@ -36,7 +39,7 @@ def buyEdit(record_id):
     else:
         return render_template('buyEdit.html', form=form, error=error)
 
-
+####
 # Adding a Buy Record
 @home_blueprint.route('/buy/add', methods=['GET', 'POST'])
 @login_required # pragma: no cover
@@ -64,7 +67,7 @@ def buyAdd():
     else:
         return render_template('buyAdd.html', form=form, error=error)
 
-
+####
 # Gather all buy Positions
 @home_blueprint.route('/buy/all')
 @login_required # pragma: no cover
@@ -72,7 +75,7 @@ def buyAll():
     buy_records = BuySheet.query.filter_by(client_id = current_user.id).all()
     return render_template('buyAll.html', buy_records=buy_records)
 
-
+####
 # Gather buy open Positions
 @home_blueprint.route('/buy/open')
 @login_required # pragma: no cover
@@ -81,7 +84,7 @@ def buyOpen():
                                 ).filter_by(exit_date=None).all()
     return render_template('buyOpen.html', buy_records=buy_records)
 
-
+####
 # Editing a Sell Record
 @home_blueprint.route('/sell/edit/<int:record_id>', methods=['GET', 'POST'])
 @login_required # pragma: no cover
@@ -98,7 +101,7 @@ def sellEdit(record_id):
     else:
         return render_template('sellEdit.html', form=form, error=error)
 
-
+####
 # Adding a Sell Record
 @home_blueprint.route('/sell/add', methods=['GET', 'POST'])
 @login_required # pragma: no cover
@@ -126,7 +129,7 @@ def sellAdd():
     else:
         return render_template('sellAdd.html', form=form, error=error)
 
-
+####
 # Gather all sell Positions
 @home_blueprint.route('/sell/all')
 @login_required # pragma: no cover
@@ -134,7 +137,7 @@ def sellAll():
     sell_records = SellSheet.query.filter_by(client_id = current_user.id).all()
     return render_template('sellAll.html', sell_records=sell_records)
 
-
+####
 # Gather sell open Positions
 @home_blueprint.route('/sell/open')
 @login_required # pragma: no cover
@@ -143,7 +146,7 @@ def sellOpen():
                                 ).filter_by(exit_date=None).all()
     return render_template('sellOpen.html', sell_records=sell_records)
 
-
+####
 # Summary Page
 @home_blueprint.route('/summary', methods=['GET', 'POST'])   # pragma: no cover
 @login_required   # pragma: no cover
@@ -151,25 +154,33 @@ def summary():
 
     # TODO: Margin variables to be extracted from a database, later
     margin_percent = 0.08
-
     form = SummaryForm(request.form)
+    agreements, stored_summary = preComputeSummary()
+
+    if request.method == 'POST' and form.validate_on_submit():
+        open_buys, open_sells = writeSummary(form, agreements, stored_summary)
+        writeLedgerLife(open_buys, open_sells)
+        return redirect(url_for('home.summary'))
+
+    form.cur_month.data   = stored_summary.first_rate
+    form.next_month.data  = stored_summary.second_rate
+    form.later_month.data = stored_summary.third_rate
+
     # Deal with Buys
     buy_records = BuySheet.query.filter_by(client_id = current_user.id
                                 ).filter_by(exit_date=None).all()
-    b_content, b_volume, b_run_loss, b_u_g = computeSummary(buy_records, True)
+    b_content = computeSummary(buy_records, stored_summary)
 
     # Deal with Sells
     sell_records = SellSheet.query.filter_by(client_id = current_user.id
                                 ).filter_by(exit_date=None).all()
-    s_content, s_volume, s_run_loss, s_u_g = computeSummary(sell_records, False)
+    s_content = computeSummary(sell_records, stored_summary)
 
     ## The Summary
-    volume = (lambda: b_volume, lambda: s_volume)[s_volume > b_volume]()
+    volume = stored_summary.volume
     margin = volume * margin_percent
-    run_loss = b_run_loss + s_run_loss
+    run_loss = stored_summary.run_loss
     investment = margin - run_loss
-    agrmnts = list(set(b_u_g + s_u_g))
-    #unq_agreements = sorted(agrmnts, key=lambda agrmnt: datetime.strptime(agrmnt, "%d/%b/%Y"))
 
     summary = {
         "margin": round(margin,5),
@@ -179,8 +190,9 @@ def summary():
     }
 
     return render_template('summary.html', form=form, b_content=b_content,
-                s_content=s_content, summary=summary, agreements=agrmnts)
+                s_content=s_content, summary=summary, agreements=agreements)
 
+####
 # dayRecords Page
 @home_blueprint.route('/dayRecords', methods=['GET'])   # pragma: no cover
 @login_required   # pragma: no cover
