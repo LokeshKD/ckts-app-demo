@@ -65,13 +65,13 @@ def writeLedgerLife(open_b, open_s):
         balance.debit,
         balance.tot_debit,
         net_credit,
-        day_record.total_profit,
+        round(day_record.total_profit,2),
         open_b,
         open_s,
-        summary.volume,
-        summary.run_loss,
-        net_profit,
-        net_amt,
+        round(summary.volume, 2),
+        round(summary.run_loss,2),
+        round(net_profit, 2),
+        round(net_amt, 2),
         current_user.id
     )
 
