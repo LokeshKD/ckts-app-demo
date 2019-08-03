@@ -3,6 +3,7 @@
 ###
 from project import db
 from project.models import DaySheet, SummarySheet, BalSheet, LifeSheet
+from project.home.helpers import preComputeSummary
 
 #from flask import render_template, redirect, request
 from flask_login import current_user
@@ -39,14 +40,36 @@ def addDefaultBalance(entry_date = date.today(), bank_name = "Bank", credit = 0,
     return entry
 
 ####
-# Write to Ledger and Life
-# We will be working with summary and Day Sheets.
+# Add Default dayRecord
+def addDefaultDayRecord():
+    entry = DaySheet(
+        entry_date = date.today(),
+        agreement = "None",
+        lot_size = 75,
+        lot_qty = 1,
+        trade_rate = 0,
+        trade_type = "None",
+        profit = 0,
+        total_profit = 0,
+        client_id = current_user.id
+    )
+    db.session.add(entry)
+    db.session.commit()
+    return entry
+
 ####
+# Write to Ledger and Life
+# We will be working with summary and Day Sheets
 def writeLedgerLife(open_b, open_s):
 
     day_record = DaySheet.query.filter_by(client_id = current_user.id
                     ).order_by(DaySheet.id.desc()).first()
+    if not day_record:
+        day_record = addDefaultDayRecord()
+
     summary = SummarySheet.query.filter_by(client_id = current_user.id).first()
+    if not summary:
+        ignore, summary = preComputeSummary()
 
     balance = BalSheet.query.filter_by(client_id = current_user.id
                     ).order_by(BalSheet.id.desc()).first()

@@ -162,6 +162,7 @@ def summary():
         writeLedgerLife(open_buys, open_sells)
         return redirect(url_for('home.summary'))
 
+    # Pre fill the data from previously computed summary
     form.cur_month.data   = stored_summary.first_rate
     form.next_month.data  = stored_summary.second_rate
     form.later_month.data = stored_summary.third_rate
