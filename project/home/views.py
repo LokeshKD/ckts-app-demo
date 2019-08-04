@@ -2,7 +2,7 @@
 # Imports
 ###
 from project import app, db
-from project.models import (BuySheet, SellSheet, DaySheet, LifeSheet, User)
+from project.models import (BuySheet, SellSheet, DaySheet, BalSheet, LifeSheet, User)
 from project.home.forms import (BuyForm, SellForm, DayForm, LifeForm, SummaryForm)
 from project.home.helpers import (updateRecord, computeSummary, addDayRecord,
                                     preComputeSummary, writeSummary)
@@ -200,6 +200,22 @@ def summary():
 def dayRecords():
     day_records = DaySheet.query.filter_by(client_id = current_user.id).all()
     return render_template('dayRecords.html', day_records=day_records)
+
+####
+# Ledger/ Balance Records Page
+@home_blueprint.route('/ledger', methods=['GET'])   # pragma: no cover
+@login_required   # pragma: no cover
+def ledger():
+    bal_records = BalSheet.query.filter_by(client_id = current_user.id).all()
+    return render_template('balRecords.html', bal_records=bal_records)
+
+####
+# Life Records Page
+@home_blueprint.route('/life', methods=['GET'])   # pragma: no cover
+@login_required   # pragma: no cover
+def life():
+    life_records = LifeSheet.query.filter_by(client_id = current_user.id).all()
+    return render_template('lifeRecords.html', life_records=life_records)
 
 ###
 # Hang on routes

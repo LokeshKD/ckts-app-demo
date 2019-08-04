@@ -1,0 +1,49 @@
+{% extends "basein.html" %}
+
+{% block content %}
+
+  <div class="container">
+
+    <nav class="navbar navbar-expand-md navbar-light bg-light" style="height:40px">
+      <div class="container-fluid">
+          <a class="nav-link" href="#" style="color:powderblue">
+            <i class="fas fa-question"></i>
+            Life Records
+          </a>
+      </div> <!-- container-fluid -->
+    </nav>
+
+    <!-- Contents of Life Table -->
+    <div style="overflow-x:auto;">
+      <table>
+        <col width="80">
+        <col width="40">
+        <col width="100">
+        <col width="100">
+        <col width="80">
+
+        <tr> <!-- Header -->
+          <th>Entry Date</th>
+          <th>Open Positions</th>
+          <th>Net Amount</th>
+          <th>Margin Used</th>
+          <th>Life Points</th>
+        </tr>
+
+        <!-- Table Data from backend -->
+        {% for record in life_records %}
+        <tr>
+          <td>  {{ record.entry_date }} </td>
+          <td>  {{ record.max_open_pos }} </td>
+          <td>  {{ record.net_amount }} </td>
+          <td>  {{ record.margin_used }} </td>
+          <td>  {{ record.life }} </td>
+          <!--<td>  <a href="/life/edit/{{ record.id }}"> Edit </a> </td> -->
+        </tr>
+        {% endfor %}
+      </table>
+    </div> <!-- Table div -->
+
+  </div> <!-- container -->
+
+{% endblock %}

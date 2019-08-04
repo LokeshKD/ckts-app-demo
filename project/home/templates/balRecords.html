@@ -1,0 +1,76 @@
+{% extends "basein.html" %}
+
+{% block content %}
+
+  <div class="container">
+
+    <nav class="navbar navbar-expand-md navbar-light bg-light" style="height:40px">
+      <div class="container-fluid">
+          <a class="nav-link" href="#" style="color:powderblue">
+            <i class="fas fa-briefcase"></i>
+            Ledger Records
+          </a>
+      </div> <!-- container-fluid -->
+    </nav>
+
+    <!-- Contents of Ledger/Balance Table -->
+    <div style="overflow-x:auto;">
+      <table>
+        <col width="80">
+        <col width="60">
+        <col width="80">
+        <col width="80">
+        <col width="80">
+        <col width="80">
+        <col width="80">
+        <col width="80">
+        <col width="20">
+        <col width="20">
+        <col width="80">
+        <col width="80">
+        <col width="80">
+        <col width="80">
+
+        <tr> <!-- Header -->
+          <th>Entry Date</th>
+          <th>Bank Name</th>
+          <th>Credit</th>
+          <th>Total Credit</th>
+          <th>Debit</th>
+          <th>Total Debit</th>
+          <th>Net Credit</th>
+          <th>Booked Profit</th>
+          <th>Open Buys</th>
+          <th>Open Sells</th>
+          <th>Volume</th>
+          <th>Running Loss</th>
+          <th>Net Profit</th>
+          <th>Net Amount</th>
+        </tr>
+
+        <!-- Table Data from backend -->
+        {% for record in bal_records %}
+        <tr>
+          <td>  {{ record.entry_date }} </td>
+          <td>  {{ record.bank_name }} </td>
+          <td>  {{ record.credit }} </td>
+          <td>  {{ record.tot_credit }} </td>
+          <td>  {{ record.debit }} </td>
+          <td>  {{ record.tot_debit }} </td>
+          <td>  {{ record.net_credit }} </td>
+          <td>  {{ record.book_profit }} </td>
+          <td>  {{ record.open_buys }} </td>
+          <td>  {{ record.open_sells }} </td>
+          <td>  {{ record.volume }} </td>
+          <td>  {{ record.run_loss }} </td>
+          <td>  {{ record.net_profit }} </td>
+          <td>  {{ record.net_amount }} </td>
+          <!--<td>  <a href="/bal/edit/{{ record.id }}"> Edit </a> </td> -->
+        </tr>
+        {% endfor %}
+      </table>
+    </div> <!-- Table div -->
+
+  </div> <!-- container -->
+
+{% endblock %}
