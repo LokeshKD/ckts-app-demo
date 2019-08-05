@@ -221,6 +221,48 @@ class SummarySheet(db.Model):
         self.third_rate = third_rate
         self.client_id = client_id
 
+# Roll Over records
+class ROSheet(db.Model):
+
+    __tablename__ = 'roll_over'
+
+    id = db.Column(db.Integer, primary_key=True)
+    entry_date = db.Column(db.Date, nullable=False)
+    agreement = db.Column(db.String, nullable=False)
+    lot_size = db.Column(db.Integer, nullable=False)
+    lot_qty = db.Column(db.Integer, nullable=False)
+    holding_type = db.Column(db.String, nullable=False)
+    expiry_rate = db.Column(db.Float, nullable=False)
+    trade = db.Column(db.String, nullable=False)
+    ro_date = db.Column(db.Date, nullable=False)
+    ro_agreement = db.Column(db.String, nullable=False)
+    ro_lot_size = db.Column(db.Integer, nullable=False)
+    ro_lot_qty = db.Column(db.Integer, nullable=False)
+    ro_rate = db.Column(db.Float, nullable=False)
+    ro_trade = db.Column(db.String, nullable=False)
+    premium = db.Column(db.Float, nullable=False)
+
+    client_id = db.Column(db.Integer, ForeignKey('users.id'))
+
+    def __init__(self, entry_date, agreement, lot_size, lot_qty, holding_type,
+            expiry_rate, trade, ro_date, ro_agreement, ro_lot_size, ro_lot_qty,
+            ro_rate, ro_trade, premium, client_id):
+        self.entry_date  = entry_date
+        self.agreement = agreement
+        self.lot_size = lot_size
+        self.lot_qty = lot_qty
+        self.holding_type = holding_type
+        self.expiry_rate = expiry_rate
+        self.trade = trade
+        self.ro_date = ro_date
+        self.ro_agreement = ro_agreement
+        self.ro_lot_size = ro_lot_size
+        self.ro_lot_qty = ro_lot_qty
+        self.ro_rate = ro_rate
+        self.ro_trade = ro_trade
+        self.premium = premium
+        self.client_id = client_id
+
 
 # User Records
 class User(db.Model):
@@ -244,7 +286,8 @@ class User(db.Model):
     day_sheet = relationship("DaySheet", backref="day_sheet")
     bal_sheet = relationship("BalSheet", backref="bal_sheet")
     life_sheet = relationship("LifeSheet", backref="life_sheet")
-    #ro_sheet = relationship("ROSheet", backref="ro")
+    summary_sheet = relationship("SummarySheet", backref="summary_sheet")
+    ro_sheet = relationship("ROSheet", backref="roll_over")
 
     def __init__(self, name, email, password, birth_date, mobile="000",
             regDate=datetime.now(), role="Client", broker="ABML",

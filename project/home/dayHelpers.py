@@ -2,21 +2,22 @@
 # Imports
 ###
 from project import db
-from project.models import DaySheet, SummarySheet, BalSheet, LifeSheet
-from project.home.helpers import preComputeSummary
+from project.models import (BuySheet, SellSheet, DaySheet, SummarySheet,
+                        BalSheet, LifeSheet, ROSheet)
+from project.home.helpers import preComputeSummary, updateRecord, addDayRecord
 
 #from flask import render_template, redirect, request
 from flask_login import current_user
 from datetime import datetime, date
 
 ####
-# Helper Functions that are suppose-dly used once in a day
+# Helper Functions that are suppose-dly used once in a day or late
 ####
 
 ####
 # Add default Balance
-def addDefaultBalance(entry_date = date.today(), bank_name = "Bank", credit = 0,
-                debit = 0, book_profit = 0, volume = 0, run_loss = 0):
+def addDefaultBalance(entry_date = date.today(), bank_name = "Bank", credit = 0.0,
+                debit = 0.0, book_profit = 0.0, volume = 0.0, run_loss = 0.0):
 
     entry = BalSheet(
         entry_date = entry_date,
@@ -63,7 +64,7 @@ def addDefaultDayRecord():
 def writeLedgerLife(open_b, open_s):
 
     day_record = DaySheet.query.filter_by(client_id = current_user.id
-                    ).order_by(DaySheet.id.desc()).first()
+                            ).order_by(DaySheet.id.desc()).first()
     if not day_record:
         day_record = addDefaultDayRecord()
 
@@ -115,3 +116,42 @@ def writeLedgerLife(open_b, open_s):
     db.session.add(bal_entry)
     db.session.add(life_entry)
     db.session.commit()
+
+####
+# Roll Over a Record.
+def roRecord(form, record, is_buy=True):
+    # compute and commit Roll Over Record
+    premium = float(form.ro_rate.data - form.expiry_rate.data + 10) # TODO Revisit
+
+    ro_record = ROSheet(
+        form.entry_date.data, form.agreement.data, form.lot_size.data,
+        form.lot_qty.data, form.holding_type.data, form.expiry_rate.data,
+        form.trade.data, form.ro_date.data, form.ro_agreement.data,
+        form.ro_lot_size.data, form.ro_lot_qty.data, form.ro_rate.data,
+        form.ro_trade.data, premium, current_user.id
+    )
+    db.session.add(ro_record)
+    db.session.commit()
+
+    #Update the Rolled over record
+    record.exit_date = form.ro_date.data
+    record.exit_rate = premium
+    record.exit_trade = form.trade.data
+    updateRecord(record, is_buy, float(form.expiry_rate.data))
+
+    if is_buy:
+        #Add a new Rolled over buy entry and push it to Day Record
+        buy_entry = BuySheet(
+          form.ro_date.data, record.ro_num + 1, record.order_start_date,
+          form.ro_agreement.data, form.ro_lot_size.data, form.ro_lot_qty.data,
+          form.ro_rate.data, form.ro_trade.data, client_id=current_user.id
+        )
+        addDayRecord(buy_entry)
+    else:
+        #Add a new Rolled over sell entry and push it to Day Record
+        sell_entry = SellSheet(
+          form.ro_date.data, record.ro_num + 1, record.order_start_date,
+          form.ro_agreement.data, form.ro_lot_size.data, form.ro_lot_qty.data,
+          form.ro_rate.data, form.ro_trade.data, client_id=current_user.id
+        )
+        addDayRecord(sell_entry)

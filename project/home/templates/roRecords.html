@@ -1,0 +1,76 @@
+{% extends "basein.html" %}
+
+{% block content %}
+
+  <div class="container">
+
+    <nav class="navbar navbar-expand-md navbar-light bg-light" style="height:40px">
+      <div class="container-fluid">
+          <a class="nav-link" href="#" style="color:powderblue">
+            <i class="fas fa-exchange-alt"></i>
+            Roll Over Records
+          </a>
+      </div> <!-- container-fluid -->
+    </nav>
+
+    <!-- Contents of Roll Over Table -->
+    <div style="overflow-x:auto;">
+      <table>
+        <col width="80">
+        <col width="100">
+        <col width="40">
+        <col width="40">
+        <col width="40">
+        <col width="80">
+        <col width="50">
+        <col width="80">
+        <col width="100">
+        <col width="60">
+        <col width="60">
+        <col width="80">
+        <col width="50">
+        <col width="40">
+
+        <tr> <!-- Header -->
+          <th>Entry Date</th>
+          <th>Agreement</th>
+          <th>Lot Size</th>
+          <th>Lot Qty</th>
+          <th>Holding Type</th>
+          <th>Expiry Rate</th>
+          <th>Trade</th>
+          <th>RO Date</th>
+          <th>RO Agreement</th>
+          <th>RO Lot Size</th>
+          <th>RO Lot Qty</th>
+          <th>RO Rate</th>
+          <th>RO Trade</th>
+          <th>Premium</th>
+        </tr>
+
+        <!-- Table Data from backend -->
+        {% for record in ro_records %}
+        <tr>
+          <td>  {{ record.entry_date }} </td>
+          <td>  {{ record.agreement }} </td>
+          <td>  {{ record.lot_size }} </td>
+          <td>  {{ record.lot_qty }} </td>
+          <td>  {{ record.holding_type }} </td>
+          <td>  {{ record.expiry_rate }} </td>
+          <td>  {{ record.trade }} </td>
+          <td>  {{ record.ro_date }} </td>
+          <td>  {{ record.ro_agreement }} </td>
+          <td>  {{ record.ro_lot_size }} </td>
+          <td>  {{ record.ro_lot_qty }} </td>
+          <td>  {{ record.ro_rate }} </td>
+          <td>  {{ record.ro_trade }} </td>
+          <td>  {{ record.premium }} </td>
+          <!--<td>  <a href="/ro/edit/{{ record.id }}"> Edit </a> </td> -->
+        </tr>
+        {% endfor %}
+      </table>
+    </div> <!-- Table div -->
+
+  </div> <!-- container -->
+
+{% endblock %}

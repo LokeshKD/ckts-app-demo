@@ -8,12 +8,12 @@ from wtforms.validators import DataRequired
 # Form Representing Buy Sheet
 class BuyForm(FlaskForm):
     entry_date = DateField('Entry Date', format='%d/%m/%Y',
-        validators=[DataRequired("Date in dd/mm/yy format")],
+        validators=[DataRequired("Date in dd/mm/yyyy format")],
     )
     ro_num = IntegerField('Roll Over Number')
 
     order_start_date = DateField('Order Start Date', format='%d/%m/%Y',
-        validators=[DataRequired("Date in dd/mm/yy format")],
+        validators=[DataRequired("Date in dd/mm/yyyy format")],
     )
     agreement = TextField('Agreement',
         validators=[DataRequired("Example: Nifty Jul 19")]
@@ -41,12 +41,12 @@ class BuyForm(FlaskForm):
 # For Representing Sell Sheet
 class SellForm(FlaskForm):
     entry_date = DateField('Entry Date', format='%d/%m/%Y',
-        validators=[DataRequired()],
+        validators=[DataRequired("Date in dd/mm/yyyy format")],
     )
     ro_num = IntegerField('Roll Over Number')
 
     order_start_date = DateField('Order Start Date', format='%d/%m/%Y',
-        validators=[DataRequired()],
+        validators=[DataRequired("Date in dd/mm/yyyy format")],
     )
     agreement = TextField('Agreement',
         validators=[DataRequired()]
@@ -162,3 +162,45 @@ class SummaryForm(FlaskForm):
     cur_month = DecimalField(validators=[DataRequired()])
     next_month = DecimalField()
     later_month = DecimalField()
+
+# Roll Over Form
+class ROForm(FlaskForm):
+    entry_date = DateField('Entry Date', format='%d/%m/%Y',
+        validators=[DataRequired("Date in dd/mm/yyyy format")],
+    )
+    agreement = TextField('Agreement',
+        validators=[DataRequired()]
+    )
+    lot_size = IntegerField('Lot Size',
+        validators=[DataRequired()]
+    )
+    lot_qty = IntegerField('Lot Quantity',
+        validators=[DataRequired()]
+    )
+    holding_type = TextField('Holding Type',
+        validators=[DataRequired()]
+    )
+    expiry_rate = DecimalField('Rate On Expiry', places=2,
+        validators=[DataRequired()]
+    )
+    trade = TextField('Trade Happening',
+        validators=[DataRequired()]
+    )
+    ro_date = DateField('Entry Date', format='%d/%m/%Y',
+        validators=[DataRequired("Date in dd/mm/yyyy format")],
+    )
+    ro_agreement = TextField('Roll Over Agreement',
+        validators=[DataRequired()]
+    )
+    ro_lot_size = IntegerField('Lot Size',
+        validators=[DataRequired()]
+    )
+    ro_lot_qty = IntegerField('Lot Quantity',
+        validators=[DataRequired()]
+    )
+    ro_rate = DecimalField('New Roll Over Rate', places=2,
+        validators=[DataRequired()]
+    )
+    ro_trade = TextField('Roll Over Trade Type',
+        validators=[DataRequired()]
+    )

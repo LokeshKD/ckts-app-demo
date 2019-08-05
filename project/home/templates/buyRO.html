@@ -1,0 +1,30 @@
+{% extends "basein.html" %}
+
+{% block content %}
+
+<h4 style="color:powderblue; text-align:center"> Roll Over Entry </h4>
+<br>
+
+{% from "_formhelpers.html" import render_field %}
+
+<form class="form-group" role="form" method="post" action="">
+  {{ form.csrf_token }}
+  <dl>
+  {{ render_field(form.entry_date) }}
+  {{ render_field(form.agreement) }}
+  {{ render_field(form.lot_size) }}
+  {{ render_field(form.lot_qty) }}
+  {{ render_field(form.holding_type) }}
+  {{ render_field(form.expiry_rate) }}
+  {{ render_field(form.trade) }}
+  {{ render_field(form.ro_date) }}
+  {{ render_field(form.ro_agreement) }}
+  {{ render_field(form.ro_lot_size) }}
+  {{ render_field(form.ro_lot_qty) }}
+  {{ render_field(form.ro_rate) }}
+  {{ render_field(form.ro_trade) }}
+  </dl>
+  <br><button class="btn btn-sm btn-primary" type="submit">Submit</button>
+</form>
+
+{% endblock %}

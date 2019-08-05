@@ -44,7 +44,7 @@ def login():
             if user is not None and bcrypt.check_password_hash(
                         user.password, request.form['password']):
                 login_user(user)
-                flash(user.name + ' just logged in')
+                #flash(user.name + ' just logged in')
                 return redirect(url_for('home.summary'))
             else:
                 error = 'Invalid Credentials.'
@@ -70,22 +70,22 @@ def register():
     if form.validate_on_submit():
         # See if user already exists
         user = User.query.filter_by(email=form.email.data).first()
-        # If so error out
-        if user is not None:
+        if user is None:
+            # checks out good. Add the user to DB.
+            user = User(
+                name=form.username.data,
+                email=form.email.data,
+                password=form.password.data,
+                birth_date=form.birth_date.data,
+                mobile=form.mobile.data
+            )
+
+            db.session.add(user)
+            db.session.commit()
+            login_user(user)
+            return redirect(url_for('home.summary'))
+        else:
+            # user does exist, error out
             error = "User with email: " + form.email.data + " already exists"
-            return render_template('register.html', form=form, error=error)
-
-        #Everything checks out good. Add the user to DB.
-        user = User(
-            name=form.username.data,
-            email=form.email.data,
-            password=form.password.data,
-            birth_date=form.birth_date.data,
-            mobile=form.mobile.data
-        )
-
-        db.session.add(user)
-        db.session.commit()
-        login_user(user)
-        return redirect(url_for('home.summary'))
+            
     return render_template('register.html', form=form, error=error)

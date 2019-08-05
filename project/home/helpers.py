@@ -79,20 +79,20 @@ def getRate(agrmnt, summary):
     if mnth in summary.third_label.lower():
         return summary.third_rate
     # Something is wrong
-    return 0
+    return 0.0
 
 ####
 # Update depth of each record and return
 # volume and running loss of positions combined
 def updateDepth(records, summary, is_buy=True):
     # Locals
-    volume = 0
-    run_loss = 0
+    volume = 0.0
+    run_loss = 0.0
     num = 0
 
     for record in records:
         num += 1
-        depth = 0
+        depth = 0.0
         cur_rate = getRate(record.agreement, summary)
 
         if is_buy:
@@ -140,7 +140,7 @@ def writeSummary(form, scrips, summary):
 def computeSummary(records, str_sum):
     # Local Variables
     content = []
-    prev_value = 0
+    prev_value = 0.0
 
     ## Get the summary of open Buys
     for record in records:
@@ -150,7 +150,7 @@ def computeSummary(records, str_sum):
         cur_rate = getRate(record.agreement, str_sum)
 
         if not record.depth:
-            record.depth = 0
+            record.depth = 0.0
 
         b_info = {
             "gap" : round(prev_value, 2),
@@ -170,23 +170,12 @@ def computeSummary(records, str_sum):
 # Common Helper function for both Buy and Sell for updating
 #  closing of a Position and making an entry into DaySheet
 ####
-def updateRecord(form, record, is_buy=True):
-    # According to Buy or Sell Sheet deal accordingly.
-    record.entry_date = form.entry_date.data
-    record.ro_num = form.ro_num.data
-    record.order_start_date = form.order_start_date.data
-    record.agreement = form.agreement.data
-    record.lot_size = form.lot_size.data
-    record.lot_qty = form.lot_qty.data
-    record.entry_rate = form.entry_rate.data
-    record.entry_trade = form.entry_trade.data
-    record.exit_date = form.exit_date.data
-    record.exit_rate = form.exit_rate.data
-    record.exit_trade = form.exit_trade.data
-
+def updateRecord(record, is_buy=True, exit_rate=0):
     # Compute the values
-    exit_date = datetime.strptime(form.exit_date._value(),"%d/%m/%Y")
-    start_date = datetime.strptime(form.order_start_date._value(),"%d/%m/%Y")
+    #exit_date = datetime.strptime(form.exit_date._value(),"%d/%m/%Y")
+    #start_date = datetime.strptime(form.order_start_date._value(),"%d/%m/%Y")
+    exit_date = datetime.strptime(str(record.exit_date),"%Y-%m-%d")
+    start_date = datetime.strptime(str(record.order_start_date),"%Y-%m-%d")
     days = (exit_date - start_date).days
 
     # This is to counter a problem with SQLAlchelmy not updating
@@ -196,28 +185,35 @@ def updateRecord(form, record, is_buy=True):
     else:
         record.days_waiting = 0
 
-    # Include deduction of brokerages at the time of exit
-    # Brokerage should be calculated at both entry and exit times, though
-    # TODO: Revisit this when we get complete info about brokerae & charges
+    #Include deduction of brokerages at the time of exit
+    #Brokerage should be calculated at both entry and exit times, though
+    #TODO: Revisit this when we get complete info about brokerae & charges
     if is_buy:
         record.rate_diff = record.exit_rate - record.entry_rate - (10 * record.lot_qty)
     else:
         record.rate_diff = record.entry_rate - record.exit_rate - (10 * record.lot_qty)
 
+    #If this is a Roll Over Update, maintain the following.
+    #exit_rate will be filled by the caller for Roll Overs
+    if 'RO' in record.exit_trade:
+        record.rate_diff =  0.0
+    else:
+        exit_rate = record.exit_rate
+
     record.profit = record.lot_qty * record.lot_size * record.rate_diff
 
-    # Write to DaySheet
-    # Get the last record for this user.
+    #Write to DaySheet
+    #Get the last record for this user.
     day_record = DaySheet.query.filter_by(client_id = current_user.id
                     ).order_by(DaySheet.id.desc()).first()
 
     day_entry = DaySheet(
-        form.exit_date.data,
-        form.agreement.data,
-        form.lot_size.data,
-        form.lot_qty.data,
-        form.exit_rate.data,
-        form.exit_trade.data,
+        record.exit_date,
+        record.agreement,
+        record.lot_size,
+        record.lot_qty,
+        exit_rate,
+        record.exit_trade,
         record.profit,
         day_record.total_profit + float(record.profit),
         client_id=current_user.id
@@ -229,23 +225,23 @@ def updateRecord(form, record, is_buy=True):
 ####
 # Add a Day record for each buy/sell NEW entry
 ####
-def addDayRecord(form, entry):
+def addDayRecord(entry):
     # Write to DaySheet
-    # Get the last record for this user.
+    # Get the last record for this user
     day_record = DaySheet.query.filter_by(client_id = current_user.id
                         ).order_by(DaySheet.id.desc()).first()
-    total_profit = 0
+    total_profit = 0.0
     if day_record:
         total_profit = day_record.total_profit
 
     day_entry = DaySheet(
-        form.entry_date.data,
-        form.agreement.data,
-        form.lot_size.data,
-        form.lot_qty.data,
-        form.entry_rate.data,
-        form.entry_trade.data,
-        0, # Profit for addition is always 0
+        entry.entry_date,
+        entry.agreement,
+        entry.lot_size,
+        entry.lot_qty,
+        entry.entry_rate,
+        entry.entry_trade,
+        0.0, # Profit for addition is always 0
         total_profit,
         client_id=current_user.id
     )

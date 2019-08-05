@@ -8,7 +8,7 @@
       <div class="container-fluid">
           <a class="nav-link" href="#" style="color:powderblue">
             <i class="fas fa-paper-plane"></i>
-            Buy Open Positions
+            Buy Positions
           </a>
 
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -43,6 +43,7 @@
         <col width="50">
         <col width="30">
         <col width="50">
+        <col width="50">
 
         <tr> <!-- Header -->
           <th>Entry Date</th>
@@ -60,7 +61,8 @@
           <th>Points</th>
           <th>Profit Amount</th>
           <th>Depth</th>
-          <th>Action</th>
+          <th>Edit</th>
+          <th>Roll Over</th>
         </tr>
 
         <!-- Table Data from backend -->
@@ -82,6 +84,7 @@
           <td>  {% if record.profit %} {{ record.profit }} {% endif %} </td>
           <td>  {% if record.depth %} {{ record.depth }} {% endif %} </td>
           <td>  <a href="/buy/edit/{{ record.id }}"> Edit </a> </td>
+          <td>  <a href="/buy/ro/{{ record.id }}"> Roll </a> </td>
         </tr>
         {% endfor %}
       </table>

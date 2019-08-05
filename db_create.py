@@ -1,5 +1,6 @@
 from project import db
-from project.models import BuySheet, SellSheet, DaySheet, BalSheet, LifeSheet
+from project.models import (BuySheet, SellSheet, DaySheet, BalSheet, LifeSheet,
+                            SummarySheet, ROSheet)
 
 # Create the database and the tables
 db.create_all()
