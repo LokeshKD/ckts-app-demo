@@ -48,10 +48,10 @@ def addDefaultDayRecord():
         agreement = "None",
         lot_size = 75,
         lot_qty = 1,
-        trade_rate = 0,
+        trade_rate = 0.0,
         trade_type = "None",
-        profit = 0,
-        total_profit = 0,
+        profit = 0.0,
+        total_profit = 0.0,
         client_id = current_user.id
     )
     db.session.add(entry)

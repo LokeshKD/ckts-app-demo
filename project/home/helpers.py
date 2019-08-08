@@ -93,12 +93,12 @@ def updateDepth(records, summary, is_buy=True):
     for record in records:
         num += 1
         depth = 0.0
-        cur_rate = getRate(record.agreement, summary)
+        cur_rate = float(getRate(record.agreement, summary))
 
         if is_buy:
-            depth = float(cur_rate) - record.entry_rate
+            depth = cur_rate - record.entry_rate
         else:
-            depth = record.entry_rate - float(cur_rate)
+            depth = record.entry_rate - cur_rate
 
         if not record.depth or record.depth > depth:
             record.depth = round(depth, 2)
@@ -144,7 +144,7 @@ def computeSummary(records, str_sum):
 
     ## Get the summary of open Buys
     for record in records:
-        if not prev_value == 0:
+        if not prev_value == 0.0:
             prev_value = record.entry_rate - prev_value
 
         cur_rate = getRate(record.agreement, str_sum)
@@ -189,9 +189,9 @@ def updateRecord(record, is_buy=True, exit_rate=0):
     #Brokerage should be calculated at both entry and exit times, though
     #TODO: Revisit this when we get complete info about brokerae & charges
     if is_buy:
-        record.rate_diff = record.exit_rate - record.entry_rate - (10 * record.lot_qty)
+        record.rate_diff = float(record.exit_rate) - record.entry_rate - (10 * record.lot_qty)
     else:
-        record.rate_diff = record.entry_rate - record.exit_rate - (10 * record.lot_qty)
+        record.rate_diff = record.entry_rate - float(record.exit_rate) - (10 * record.lot_qty)
 
     #If this is a Roll Over Update, maintain the following.
     #exit_rate will be filled by the caller for Roll Overs
@@ -200,7 +200,7 @@ def updateRecord(record, is_buy=True, exit_rate=0):
     else:
         exit_rate = record.exit_rate
 
-    record.profit = record.lot_qty * record.lot_size * record.rate_diff
+    record.profit = float(record.lot_qty * record.lot_size * record.rate_diff)
 
     #Write to DaySheet
     #Get the last record for this user.
@@ -214,8 +214,8 @@ def updateRecord(record, is_buy=True, exit_rate=0):
         record.lot_qty,
         exit_rate,
         record.exit_trade,
-        record.profit,
-        day_record.total_profit + float(record.profit),
+        round(record.profit, 2),
+        round(day_record.total_profit + record.profit, 2),
         client_id=current_user.id
     )
 
