@@ -103,7 +103,7 @@ def updateDepth(records, summary, is_buy=True):
         if not record.depth or record.depth > depth:
             record.depth = round(depth, 2)
 
-        volume += record.entry_rate * record.lot_qty * record.lot_size
+        volume += cur_rate * record.lot_qty * record.lot_size
         run_loss += record.depth * record.lot_qty * record.lot_size
 
     return num, volume, run_loss

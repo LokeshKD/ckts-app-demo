@@ -139,7 +139,7 @@ def sellEdit(record_id):
     error = None
     sell_record = SellSheet.query.filter_by(id = record_id).first()
     form = SellForm(request.form, obj=sell_record)
-    form.exit_trade.data = 'buy'
+    form.exit_trade.data = 'cover buy'
     if request.method == 'POST' and form.validate_on_submit():
         sell_record.exit_date  = form.exit_date.data
         sell_record.exit_rate  = form.exit_rate.data
@@ -157,7 +157,7 @@ def sellEdit(record_id):
 def sellAdd():
     error = None
     form = SellForm(request.form)
-    form.entry_trade.data = 'sell'
+    form.entry_trade.data = 'short sell'
     if form.validate_on_submit():
         sell_entry = SellSheet(
             form.entry_date.data,
